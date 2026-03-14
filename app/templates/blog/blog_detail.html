@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article class="blog-detail" style="padding-top: 160px; padding-bottom: 100px;">
+    <div class="container" style="max-width: 800px;">
+        <div class="reveal" style="margin-bottom: 20px;">
+            <span class="section-tag">{{ post.category.name if post.category else 'Insights' }}</span>
+            <span style="color: #666; margin-left: 15px;">
+                {{ post.published_at.strftime('%b %d, %Y') if post.published_at else 'Recently' }}
+            </span>
+        </div>
+
+        <h1 class="section-title reveal" style="font-size: 3.5rem; line-height: 1.2; margin-bottom: 30px;">
+            {{ post.title }}
+        </h1>
+
+        <div class="reveal" style="display: flex; align-items: center; margin-bottom: 50px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+            <div style="width: 40px; height: 40px; background: #000; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold;">
+                {{ post.author_name[0] if post.author_name else 'N' }}
+            </div>
+            <span style="font-weight: 500;">{{ post.author_name if post.author_name else 'Nexa Team' }}</span>
+        </div>
+
+        {% if post.featured_image %}
+        <div class="reveal" style="margin-bottom: 50px;">
+            <img src="{{ post.featured_image }}" alt="{{ post.title }}" style="width: 100%; border-radius: 12px;">
+        </div>
+        {% endif %}
+
+        <div class="blog-content reveal" style="font-size: 1.2rem; line-height: 1.8; color: #333;">
+            {{ post.content | safe }}
+        </div>
+
+        <div class="reveal" style="margin-top: 80px; padding-top: 40px; border-top: 1px solid #eee;">
+            <a href="{{ url_for('blog.list_posts') }}" style="text-decoration: none; color: #000; font-weight: 600;">
+                ← Back to all Insights
+            </a>
+        </div>
+        <aside style="position: sticky; top: 120px; height: fit-content; margin-left: -80px;">
+            <div style="display: flex; flex-direction:column; align-items:left; gap: 5px;margin-top: 70px;">
+                <span style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #aaa; letter-spacing: 2px; margin-bottom: 30px;">
+                    Share
+                </span>
+            <div style="display: flex; flex-direction:row;">
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url }}" target="_blank" class="share-btn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ request.url }}" target="_blank" class="share-btn">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+</article>
+
+{% endblock %}

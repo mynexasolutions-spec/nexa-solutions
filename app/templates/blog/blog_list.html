@@ -1,0 +1,110 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+<section id="blogs-hero" style="padding-top: 120px; background-color: #fff;">
+  <div class="container">
+    
+    <div style="text-align: center; margin-bottom: 60px;">
+        
+        <h1 style="font-size: 4.5rem; padding-bottom: 5px; font-weight: 800; letter-spacing: -3px; line-height: 1; margin: 20px 0; background: linear-gradient(to right, #000, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"> Discover our latest Blogs </h1>
+        <p style="color: #666; max-width: 700px; margin: 0 auto;">
+            Explore insights into AI, Web Architecture, and Digital Strategy from the Nexa Team.
+        </p>
+
+        <form action="{{ url_for('blog.list_posts') }}" method="GET" class="reveal" style="max-width: 650px; margin: 40px auto 100px; position: relative; z-index: 10;">
+            <input type="text" 
+                name="q" 
+                value="{{ request.args.get('q', '') }}"
+                placeholder="Search insights..." 
+                style="width: 100%; padding: 22px 35px; border-radius: 50px; border: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); font-size: 1.1rem; outline: none; transition: 0.4s; box-shadow: 0 20px 40px rgba(0,0,0,0.04);">
+            
+            <button type="submit" 
+                    style="position: absolute; right: 10px; top: 10px; bottom: 10px; background: #000; color: #fff; border: none; padding: 0 35px; border-radius: 40px; font-weight: 700; cursor: pointer; transition: 0.3s;">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <div class="category-nav" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 80px; flex-wrap: wrap;">
+        <a href="{{ url_for('blog.list_posts') }}" 
+           class="section-tag" 
+           style="{% if not request.args.get('category') %}background: #000; color: #fff;{% endif %}">
+           All
+        </a>
+        {% for cat in categories %}
+            <a href="{{ url_for('blog.list_posts', category=cat.name) }}" 
+               class="section-tag"
+               style="{% if request.args.get('category') == cat.name %}background: #000; color: #fff;{% endif %}">
+                {{ cat.name }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 50px;">
+        
+        <div class="blogs-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 40px;">
+            {% for post in posts %}
+            <a href="{{ url_for('blog.detail', slug=post.slug) }}" class="blog-card-link" style="text-decoration: none; color: inherit;">
+                <div class="blog-card reveal" style="background: #fff; border-radius: 20px; overflow: hidden; transition: all 0.4s ease; border: 1px solid #f0f0f0;">
+                    
+                    <div class="blog-img" style="height: 240px; overflow: hidden;">
+                        <img src="{{ post.featured_image }}" 
+                            style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;"
+                            onmouseenter="this.style.transform='scale(1.08)'" 
+                            onmouseleave="this.style.transform='scale(1)'">
+                    </div>
+
+                    <div class="blog-body" style="padding: 30px;">
+                        <span class="section-tag" style="font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; background: #f8f8f8; padding: 4px 12px; border-radius: 4px;">
+                            {{ post.category.name }}
+                        </span>
+                        
+                        <h3 style="margin: 15px 0; font-size: 1.6rem; line-height: 1.3; font-weight: 800; color: #000;">
+                            {{ post.title }}
+                        </h3>
+                        
+                        <p style="color: #666; font-size: 1rem; line-height: 1.7; margin-bottom: 20px;">
+                            {{ post.summary[:110] }}...
+                        </p>
+                        
+                        <div class="read-article-container">
+                            <div style="font-weight: 700; color: inherit; display: flex; align-items: center; gap: 8px;">
+                                Read Article <span style="font-size: 1.2rem;">→</span>
+                            </div>
+                            <div class="read-article-line"></div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <aside style="border-left: 1px solid #eee; padding-left: 30px;">
+            <div style="margin-bottom: 50px;">
+                <h3 style="font-size: 1.2rem; border-bottom: 2px solid #000; display: inline-block; margin-bottom: 30px;">Featured</h3>
+                {% for f_post in posts[:3] %}
+                <div class="sidebar-item reveal"> <img src="{{ f_post.featured_image }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px;">
+                    <div>
+                        <small style="color: #bbb; font-weight: 600;">{{ f_post.published_at.strftime('%b %d, %Y') }}</small>
+                        <a href="{{ url_for('blog.detail', slug=f_post.slug) }}" style="text-decoration: none; color: #333;">
+                            <h4 style="font-size: 0.9rem; margin: 5px 0; line-height: 1.4;">{{ f_post.title }}</h4>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <h3 style="font-size: 1.2rem; border-bottom: 2px solid #000; display: inline-block; margin: 40px 0 30px;">Latest</h3>
+                {% for l_post in posts[::-1][:4] %}
+                <a href="{{ url_for('blog.detail', slug=l_post.slug) }}" class="latest-item reveal"> <small style="color: #bbb; font-weight: 600;">{{ l_post.published_at.strftime('%b %d, %Y') }}</small>
+                    <h4 style="font-size: 0.95rem; margin-top: 5px; color: #333;">{{ l_post.title }}</h4>
+                </a>
+                {% endfor %}
+            </div>
+        </aside>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

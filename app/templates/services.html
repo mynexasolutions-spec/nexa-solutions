@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Services – Nexa Solutions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+    <style>
+      /* ============ VARIABLES ============ */
+      :root {
+        --black:  #ffffff;
+        --black2: #f5f5f5;
+        --black3: #ebebeb;
+        --black4: #d8d8d8;
+        --white:  #0a0a0a;
+        --white2: #222222;
+        --gray:   #555555;
+        --gray2:  #999999;
+        --green:  #111111;
+        --green3: rgba(0,0,0,0.12);
+        --green4: rgba(0,0,0,0.05);
+        --font-head: "Plus Jakarta Sans", sans-serif;
+        --font-body: "Inter", sans-serif;
+        --transition: 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+        --smooth-ease: cubic-bezier(0.16,1,0.3,1);
+      }
+
+      /* ============ RESET ============ */
+      *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+      html { scroll-behavior:smooth; }
+      body { background:var(--black); color:var(--white); font-family:var(--font-body); overflow-x:hidden; cursor:none; }
+      a { text-decoration:none; color:inherit; }
+      img { display:block; max-width:100%; }
+      button { cursor:none; border:none; outline:none; font-family:var(--font-body); }
+
+      /* ============ CURSOR ============ */
+      .cursor { position:fixed; width:10px; height:10px; background:var(--green); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:transform 0.1s; }
+      .cursor-ring { position:fixed; width:36px; height:36px; border:1.5px solid var(--green); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width 0.3s,height 0.3s,transform 0.15s,opacity 0.3s; opacity:0.5; }
+
+      /* ============ SCROLLBAR ============ */
+      ::-webkit-scrollbar { width:4px; }
+      ::-webkit-scrollbar-track { background:var(--black); }
+      ::-webkit-scrollbar-thumb { background:var(--green); border-radius:2px; }
+
+      /* ============ UTILITY ============ */
+      .container { max-width:1200px; margin:0 auto; padding:0 40px; }
+      .section-tag { display:inline-block; font-family:var(--font-body); font-size:11px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:var(--green); border:1px solid var(--green3); background:var(--green4); padding:6px 14px; border-radius:10px; margin-bottom:20px; }
+      .section-title { font-family:var(--font-head); font-size:clamp(36px,4vw,52px); font-weight:800; line-height:1.1; color:var(--white); margin-bottom:16px; }
+      .btn-primary { display:inline-flex; align-items:center; gap:8px; background:var(--green); color:var(--black); font-family:var(--font-head); font-weight:700; font-size:14px; letter-spacing:0.5px; padding:14px 28px; border-radius:10px; transition:var(--transition); cursor:none; }
+      .btn-primary:hover { background:#444; color:#fff; transform:translateY(-2px); }
+      .btn-outline { display:inline-flex; align-items:center; gap:8px; background:transparent; color:var(--white); font-family:var(--font-head); font-weight:600; font-size:14px; padding:14px 28px; border:1px solid var(--gray2); border-radius:10px; transition:var(--transition); cursor:none; }
+      .btn-outline:hover { border-color:#111; color:#111; background:rgba(0,0,0,0.04); transform:translateY(-2px); }
+
+      /* ============ REVEAL ============ */
+      .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.7s var(--smooth-ease), transform 0.7s var(--smooth-ease); }
+      .reveal.visible { opacity:1; transform:translateY(0); }
+      .reveal-delay-1 { transition-delay:0.08s; }
+      .reveal-delay-2 { transition-delay:0.16s; }
+      .reveal-delay-3 { transition-delay:0.24s; }
+
+      /* ============ NAVBAR ============ */
+      #navbar { position:fixed; top:0; left:0; right:0; z-index:1000; padding:24px 0; transition:max-width 0.7s var(--smooth-ease),padding 0.6s var(--smooth-ease),top 0.6s var(--smooth-ease),background 0.4s ease,border-radius 0.7s var(--smooth-ease); }
+      #navbar.scrolled { top:20px; padding:5px 0; max-width:900px; margin:0 auto; background:rgba(255,255,255,0.92); backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); border:1px solid rgba(0,0,0,0.15); border-radius:100px; box-shadow:0 10px 30px rgba(0,0,0,0.1); }
+      #navbar.scrolled .container { padding:0 30px; transition:padding 0.5s ease; }
+      .nav-inner { display:flex; align-items:center; justify-content:space-between; }
+      .nav-logo { font-family:var(--font-head); font-size:22px; font-weight:800; letter-spacing:-0.5px; }
+      .nav-logo span { color:var(--green); }
+      .nav-links { display:flex; align-items:center; gap:36px; list-style:none; }
+      .nav-links a { font-size:13px; font-weight:500; color:var(--white2); letter-spacing:0.3px; position:relative; transition:color 0.25s; }
+      .nav-links a::after { content:""; position:absolute; bottom:-3px; left:0; width:0; height:1px; background:var(--green); transition:width 0.3s; }
+      .nav-links a:hover, .nav-links a.active { color:var(--green); }
+      .nav-links a:hover::after, .nav-links a.active::after { width:100%; }
+      .nav-cta { display:flex; align-items:center; gap:16px; }
+      .hamburger { display:none; flex-direction:column; gap:5px; background:none; padding:4px; }
+      .hamburger span { display:block; width:22px; height:1.5px; background:var(--white); transition:0.3s; }
+      .mobile-menu { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:var(--black); z-index:999; flex-direction:column; align-items:center; justify-content:center; gap:40px; }
+      .mobile-menu.open { display:flex; }
+      .mobile-menu a { font-family:var(--font-head); font-size:32px; font-weight:700; color:var(--white); transition:color 0.2s; }
+      .mobile-menu a:hover { color:var(--green); }
+      .mobile-close { position:absolute; top:28px; right:28px; background:none; color:var(--white); font-size:28px; cursor:none; }
+
+      /* ============ PAGE HERO ============ */
+      #page-hero {
+        position:relative; min-height:72vh;
+        display:flex; align-items:center;
+        padding-top:130px; padding-bottom:80px; overflow:hidden;
+      }
+      .hero-bg-grid {
+        position:absolute; inset:0;
+        background-image:linear-gradient(rgba(0,0,0,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.022) 1px,transparent 1px);
+        background-size:60px 60px; animation:grid-move 20s linear infinite;
+      }
+      @keyframes grid-move { 0%{transform:translateY(0)} 100%{transform:translateY(60px)} }
+      .hero-orb { position:absolute; top:-10%; right:-5%; width:55vw; height:55vw; max-width:700px; max-height:700px; background:radial-gradient(circle,rgba(0,0,0,0.06) 0%,rgba(0,0,0,0.015) 50%,transparent 70%); border-radius:50%; pointer-events:none; animation:orb-pulse 6s ease-in-out infinite; }
+      .hero-orb2 { position:absolute; bottom:-15%; left:-10%; width:45vw; height:45vw; max-width:500px; max-height:500px; background:radial-gradient(circle,rgba(0,0,0,0.03) 0%,transparent 65%); border-radius:50%; pointer-events:none; }
+      @keyframes orb-pulse { 0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.08);opacity:1} }
+      .hero-inner { position:relative; z-index:1; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+      .hero-badge { display:inline-flex; align-items:center; gap:8px; background:var(--green4); border:1px solid rgba(0,0,0,0.12); padding:8px 16px; border-radius:2px; margin-bottom:28px; opacity:0; animation:fade-up 0.7s 0.2s forwards; }
+      .hero-badge-dot { width:6px; height:6px; background:var(--green); border-radius:50%; animation:blink 1.5s ease-in-out infinite; }
+      @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+      .hero-badge span { font-size:12px; font-weight:500; color:var(--green); letter-spacing:1.5px; text-transform:uppercase; }
+      .hero-title { font-family:var(--font-head); font-size:clamp(48px,6vw,80px); font-weight:800; line-height:1.0; letter-spacing:-2px; margin-bottom:24px; opacity:0; animation:fade-up 0.8s 0.35s forwards; }
+      .hero-sub { font-size:17px; color:var(--gray); line-height:1.75; max-width:480px; margin-bottom:40px; opacity:0; animation:fade-up 0.8s 0.5s forwards; }
+      .hero-actions { display:flex; gap:16px; flex-wrap:wrap; opacity:0; animation:fade-up 0.8s 0.65s forwards; }
+      @keyframes fade-up { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+      /* ── HERO RIGHT PANEL ── */
+      .hero-panel {
+        opacity:0; animation:fade-up 0.9s 0.55s forwards;
+        display:flex; flex-direction:column; gap:14px;
+      }
+      .hero-panel-row { display:grid; gap:14px; }
+      .hero-panel-row-1 { grid-template-columns: 1fr 1fr; }
+      .hero-panel-row-2 { grid-template-columns: 1.4fr 1fr; }
+
+      .hp-tile {
+        background:var(--black2); border:1px solid var(--black4);
+        border-radius:18px; padding:24px 22px;
+        position:relative; overflow:hidden; transition:var(--transition);
+      }
+      .hp-tile:hover { transform:translateY(-3px); border-color:#bbb; box-shadow:0 12px 40px rgba(0,0,0,0.07); }
+      .hp-tile::after {
+        content:''; position:absolute; top:0; right:0;
+        width:60px; height:60px;
+        background:radial-gradient(circle at top right, rgba(0,0,0,0.04), transparent 70%);
+        border-radius:0 18px 0 0;
+      }
+
+      .hp-tile-metric .hp-label,
+      .hp-tile-bars .hp-label,
+      .hp-tile-ticker .hp-label {
+        font-size:10px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase;
+        color:var(--gray2); margin-bottom:10px; display:block; 
+      }
+      .hp-tile-bars .hp-label,
+      .hp-tile-ticker .hp-label { margin-bottom:14px; }
+
+      .hp-tile-metric .hp-number {
+        font-family:var(--font-head); font-size:clamp(38px,4vw,54px);
+        font-weight:800; color:var(--white); line-height:1; letter-spacing:-2px;
+      }
+      .hp-tile-metric .hp-number sup { font-size:0.38em; font-weight:700; letter-spacing:0; vertical-align:super; color:var(--gray); }
+      .hp-tile-metric .hp-sub { font-size:12px; color:var(--gray); margin-top:8px; line-height:1.5; }
+      .hp-tile-metric .hp-delta {
+        display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; color:#1a7a4a;
+        background:rgba(26,122,74,0.08); border:1px solid rgba(26,122,74,0.15);
+        padding:3px 8px; border-radius:100px; margin-top:10px;
+      }
+      .hp-delta-dot { width:5px; height:5px; border-radius:50%; background:#1a7a4a; }
+
+      .hp-bars { display:flex; flex-direction:column; gap:9px; }
+      .hp-bar-row { display:flex; flex-direction:column; gap:4px; }
+      .hp-bar-meta { display:flex; justify-content:space-between; align-items:baseline; }
+      .hp-bar-name { font-size:11px; font-weight:600; color:var(--white2); }
+      .hp-bar-val { font-size:11px; font-weight:700; color:var(--white); font-family:var(--font-head); }
+      .hp-bar-track { height:4px; background:var(--black3); border-radius:100px; overflow:hidden; }
+      .hp-bar-fill {
+        height:100%; border-radius:100px; background:var(--green);
+        transform:scaleX(0); transform-origin:left;
+        transition:transform 1.2s var(--smooth-ease);
+      }
+      .hp-bar-fill.animate { transform:scaleX(1); }
+
+      .hero-panel-row-2 { 
+        grid-template-columns: 1fr; /* This makes it take up the full available width */
+      }
+
+      .hp-ticker-list { display:flex; flex-direction:column; gap:8px; overflow:hidden; }
+      .hp-tick-item {
+        display:flex; align-items:center; gap:10px; padding:8px 10px;
+        border-radius:10px; background:var(--black3); border:1px solid var(--black4);
+        transition:var(--transition);
+      }
+      .hp-tick-item:hover { border-color:#bbb; background:#efefef; }
+      .hp-tick-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+      .hp-tick-dot.green { background:#1a7a4a; }
+      .hp-tick-dot.blue  { background:#2563eb; }
+      .hp-tick-dot.amber { background:#d97706; }
+      .hp-tick-text { font-size:11.5px; font-weight:500; color:var(--white2); line-height:1.4; flex:1; }
+      .hp-tick-time { font-size:10px; color:var(--gray2); white-space:nowrap; font-variant-numeric:tabular-nums; }
+
+      .hp-tile-stack { display:flex; flex-direction:column; gap:0; }
+      .hp-stack-item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--black4); }
+      .hp-stack-item:last-child { border-bottom:none; }
+      .hp-stack-label { font-size:12px; color:var(--gray); font-weight:500; }
+      .hp-stack-val { font-family:var(--font-head); font-size:18px; font-weight:800; color:var(--white); letter-spacing:-0.5px; }
+      .hp-stack-val span { font-size:11px; font-weight:600; color:#1a7a4a; margin-left:4px; }
+
+      .hp-live { display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--gray2); margin-bottom:6px; }
+      .hp-live-dot { width:6px; height:6px; border-radius:50%; background:#1a7a4a; animation:blink 1.5s ease-in-out infinite; }
+      
+
+      /* ============ FILTER BAR ============ */
+      #filter-bar { border-bottom:1px solid var(--black4); position:sticky; top:0; z-index:500; background:rgba(255,255,255,0.96); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
+      .filter-inner { display:flex; align-items:center; gap:10px; padding:18px 0; flex-wrap:wrap; }
+      .filter-label { font-size:11px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--gray2); margin-right:6px; }
+      .filter-btn {
+        font-family:var(--font-body);
+        font-size:13px;
+        font-weight:500;
+        color:var(--gray);
+        background:var(--black2);
+        border:1px solid var(--black4);
+        padding:8px 18px;
+        border-radius:100px;
+        cursor:none;
+        transition:var(--transition);
+        letter-spacing:0.3px;
+      }
+      .filter-btn:hover, .filter-btn.active { background:var(--green); color:var(--black); border-color:var(--green); }
+      .filter-btn.active { background:var(--green); color:var(--black); border-color:var(--green); }
+
+      /* ============ SERVICES SECTION — BENTO ============ */
+      #services-section { padding:80px 0 120px; }
+      .services-intro { text-align:center; margin-bottom:64px; }
+      .services-intro .sub { font-size:16px; color:var(--gray); line-height:1.7; max-width:620px; margin:0 auto; text-align:center; }
+
+      /* Bento grid layout */
+      .services-grid {
+        display:grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-auto-rows: minmax(80px, auto);
+        gap:18px;
+        align-items:stretch;
+      }
+
+      /* Bento spans */
+      .srv-card:nth-child(1)  { grid-column: span 5; grid-row: span 2; }
+      .srv-card:nth-child(2)  { grid-column: span 7; grid-row: span 1; }
+      .srv-card:nth-child(3)  { grid-column: span 7; grid-row: span 1; }
+      .srv-card:nth-child(4)  { grid-column: span 4; grid-row: span 2; }
+      .srv-card:nth-child(5)  { grid-column: span 4; grid-row: span 2; }
+      .srv-card:nth-child(6)  { grid-column: span 4; grid-row: span 2; }
+      .srv-card:nth-child(7)  { grid-column: span 7; grid-row: span 1; }
+      .srv-card:nth-child(8)  { grid-column: span 5; grid-row: span 2; }
+      .srv-card:nth-child(9)  { grid-column: span 7; grid-row: span 1; }
+      .srv-card:nth-child(10) { grid-column: span 5; grid-row: span 1; }
+
+      .srv-card {
+        background:var(--black2);
+        border:1px solid var(--black4);
+        border-radius:22px;
+        padding:0;
+        display:flex; flex-direction:column;
+        transition:var(--transition); cursor:none;
+        position:relative; overflow:hidden;
+        min-height:220px;
+      }
+
+      /* ── Image layer: always visible, light overlay by default ── */
+      .srv-card-img {
+        position:absolute; inset:0;
+        background-size:cover; background-position:center;
+        opacity:1;
+        transition:opacity 0.5s ease;
+        z-index:0;
+      }
+      /* Light overlay so text is readable on default state */
+      .srv-card-img::after {
+        content:'';
+        position:absolute; inset:0;
+        background:linear-gradient(to bottom,
+          rgba(255,255,255,0.45) 0%,
+          rgba(255,255,255,0.82) 45%,
+          rgba(255,255,255,0.96) 100%);
+        transition:background 0.45s ease;
+      }
+      /* On hover: dark overlay, text flips to white */
+      .srv-card:hover .srv-card-img::after {
+        background:linear-gradient(to bottom,
+          rgba(0,0,0,0.25) 0%,
+          rgba(0,0,0,0.72) 50%,
+          rgba(0,0,0,0.92) 100%);
+      }
+
+      .srv-card-body {
+        position:relative; z-index:1;
+        padding:32px 30px 28px;
+        display:flex; flex-direction:column;
+        height:100%;
+        transition:var(--transition);
+      }
+
+      /* Bottom bar */
+      .srv-card::before {
+        content:'';
+        position:absolute; bottom:0; left:0; right:0; height:2.5px;
+        background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,0.4) 100%);
+        transform:scaleX(0); transform-origin:left;
+        transition:transform 0.45s var(--smooth-ease);
+        z-index:2;
+      }
+      .srv-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-5px); box-shadow:0 28px 72px rgba(0,0,0,0.22); }
+      .srv-card:hover::before { transform:scaleX(1); }
+
+      /* ── Text colors: dark by default, white on hover ── */
+      .srv-card-title { font-family:var(--font-head); font-size:18px; font-weight:800; line-height:1.25; color:#0a0a0a; margin-bottom:10px; transition:color 0.35s; }
+      .srv-card:hover .srv-card-title { color:#ffffff; }
+
+      .srv-card:nth-child(1) .srv-card-title,
+      .srv-card:nth-child(8) .srv-card-title { font-size:22px; }
+
+      .srv-card-desc { font-size:13px; color:#444; line-height:1.72; margin-bottom:18px; flex-grow:1; transition:color 0.35s; }
+      .srv-card:hover .srv-card-desc { color:rgba(255,255,255,0.8); }
+
+      .srv-card:nth-child(2) .srv-card-desc,
+      .srv-card:nth-child(3) .srv-card-desc,
+      .srv-card:nth-child(7) .srv-card-desc,
+      .srv-card:nth-child(9) .srv-card-desc,
+      .srv-card:nth-child(10) .srv-card-desc {
+        display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+      }
+
+      /* Header row */
+      .srv-card-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; }
+      .srv-card-icon-wrap {
+        width:46px; height:46px;
+        background:rgba(255,255,255,0.85); border:1px solid rgba(0,0,0,0.12);
+        border-radius:12px;
+        display:flex; align-items:center; justify-content:center;
+        font-size:22px; flex-shrink:0;
+        backdrop-filter:blur(6px);
+        transition:background 0.35s, border-color 0.35s;
+      }
+      .srv-card:hover .srv-card-icon-wrap { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); }
+
+      .srv-card-num {
+        font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:2.5px;
+        color:#777; text-transform:uppercase; padding:4px 10px;
+        border:1px solid rgba(0,0,0,0.14); border-radius:100px;
+        background:rgba(255,255,255,0.75); white-space:nowrap; align-self:flex-start;
+        backdrop-filter:blur(4px);
+        transition:color 0.35s, background 0.35s, border-color 0.35s;
+      }
+      .srv-card:hover .srv-card-num { color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.25); }
+
+      /* Category pill */
+      .srv-cat-pill {
+        display:inline-flex; align-items:center; gap:5px;
+        font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+        color:#111; border:1px solid rgba(0,0,0,0.14); background:rgba(255,255,255,0.75);
+        padding:4px 10px; border-radius:100px; margin-bottom:12px; width:fit-content;
+        backdrop-filter:blur(4px);
+        transition:color 0.35s, background 0.35s, border-color 0.35s;
+      }
+      .srv-card:hover .srv-cat-pill { color:#fff; background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); }
+
+      /* Divider */
+      .srv-divider { border:none; border-top:1px solid rgba(0,0,0,0.1); margin-bottom:16px; transition:border-color 0.35s; }
+      .srv-card:hover .srv-divider { border-color:rgba(255,255,255,0.2); }
+
+      /* Features list */
+      .srv-features { list-style:none; display:flex; flex-direction:column; gap:7px; margin-bottom:18px; }
+      .srv-features li { font-size:12.5px; color:#333; display:flex; align-items:flex-start; gap:8px; line-height:1.5; transition:color 0.35s; }
+      .srv-features li::before { content:'→'; font-size:10px; font-weight:700; color:#111; flex-shrink:0; margin-top:2px; transition:color 0.35s; }
+      .srv-card:hover .srv-features li { color:rgba(255,255,255,0.85); }
+      .srv-card:hover .srv-features li::before { color:#fff; }
+
+      .srv-card:nth-child(2) .srv-features,
+      .srv-card:nth-child(3) .srv-features,
+      .srv-card:nth-child(7) .srv-features,
+      .srv-card:nth-child(9) .srv-features,
+      .srv-card:nth-child(10) .srv-features { display:none; }
+
+      /* Tags */
+      .srv-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; }
+      .srv-tag {
+        font-size:10.5px; font-weight:500; color:#333;
+        background:rgba(255,255,255,0.75); border:1px solid rgba(0,0,0,0.12);
+        padding:3px 9px; border-radius:100px; transition:0.35s;
+        backdrop-filter:blur(4px);
+      }
+      .srv-card:hover .srv-tag { color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.25); }
+
+      .srv-card:nth-child(2) .srv-tag:nth-child(n+3),
+      .srv-card:nth-child(3) .srv-tag:nth-child(n+3),
+      .srv-card:nth-child(7) .srv-tag:nth-child(n+3),
+      .srv-card:nth-child(9) .srv-tag:nth-child(n+3),
+      .srv-card:nth-child(10) .srv-tag:nth-child(n+3) { display:none; }
+
+      /* CTA link */
+      .srv-link { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:#111; letter-spacing:0.5px; transition:gap 0.25s, color 0.35s; margin-top:auto; }
+      .srv-card:hover .srv-link { color:#fff; gap:12px; }
+
+      /* Hero badge */
+      .srv-hero-badge {
+        position:absolute; top:22px; right:22px; z-index:3;
+        background:rgba(255,255,255,0.8); border:1px solid rgba(0,0,0,0.1);
+        backdrop-filter:blur(10px);
+        border-radius:100px; padding:5px 12px;
+        font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#333;
+        display:none;
+        transition:background 0.35s, color 0.35s, border-color 0.35s;
+      }
+      .srv-card:hover .srv-hero-badge { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); color:#fff; }
+      .srv-card:nth-child(1) .srv-hero-badge,
+      .srv-card:nth-child(8) .srv-hero-badge { display:block; }
+
+      /* ============ PROCESS ============ */
+      #process { padding:120px 0; background:var(--black2); border-top:1px solid var(--black4); border-bottom:1px solid var(--black4); }
+      .process-header { text-align:center; margin-bottom:72px; }
+      .process-header .sub { font-size:16px; color:var(--gray); line-height:1.7; max-width:560px; margin:0 auto; text-align:center; }
+      .process-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; }
+      .process-steps::before { content:''; position:absolute; top:32px; left:12%; right:12%; height:1px; background:linear-gradient(90deg,transparent,var(--black4) 20%,var(--black4) 80%,transparent); }
+      .process-step { text-align:center; padding:0 20px; }
+      .process-step-num { width:64px; height:64px; border-radius:50%; background:var(--black); border:1px solid var(--black4); display:flex; align-items:center; justify-content:center; margin:0 auto 24px; font-family:var(--font-head); font-size:18px; font-weight:800; color:var(--green); position:relative; z-index:1; transition:var(--transition); }
+      .process-step:hover .process-step-num { background:var(--green); color:var(--black); border-color:var(--green); transform:scale(1.1); }
+      .process-step-title { font-family:var(--font-head); font-size:16px; font-weight:700; color:var(--white); margin-bottom:10px; }
+      .process-step-desc { font-size:13px; color:var(--gray); line-height:1.65; }
+
+      /* ============ TECHNOLOGIES ============ */
+      #technologies { padding:120px 0; }
+      .tech-header { text-align:center; margin-bottom:72px; }
+      .tech-header .sub { font-size:16px; color:var(--gray); line-height:1.7; max-width:560px; margin:0 auto; text-align:center; }
+      .tech-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+      .tech-cat { background:var(--black2); border:1px solid var(--black4); border-radius:20px; padding:32px; transition:var(--transition); }
+      .tech-cat:hover { border-color:var(--green); transform:translateY(-4px); }
+      .tech-cat-icon { font-size:26px; margin-bottom:14px; }
+      .tech-cat-title { font-family:var(--font-head); font-size:15px; font-weight:700; color:var(--white); margin-bottom:16px; }
+      .tech-pills { display:flex; flex-wrap:wrap; gap:8px; }
+      .tech-pill { font-size:12px; font-weight:500; color:var(--white2); background:var(--black3); border:1px solid var(--black4); padding:5px 12px; border-radius:100px; transition:0.2s; }
+      .tech-pill:hover { background:var(--green); color:var(--black); border-color:var(--green); }
+
+      /* ============ CTA ============ */
+      #services-cta { padding:120px 0; position:relative; overflow:hidden; }
+      .cta-bg { position:absolute; inset:0; background-image:linear-gradient(rgba(0,0,0,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.022) 1px,transparent 1px); background-size:60px 60px; }
+      .cta-inner { position:relative; z-index:1; text-align:center; max-width:700px; margin:0 auto; }
+      .cta-title { font-family:var(--font-head); font-size:clamp(40px,5vw,64px); font-weight:800; line-height:1.05; letter-spacing:-1.5px; margin-bottom:20px; }
+      .cta-sub { font-size:17px; color:var(--gray); line-height:1.7; margin-bottom:44px; }
+      .cta-actions { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+
+      /* ============ FOOTER ============ */
+      footer { border-top:1px solid var(--black4); padding:80px 0 40px; }
+      .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr; gap:60px; margin-bottom:60px; }
+      .footer-logo { font-family:var(--font-head); font-size:26px; font-weight:800; margin-bottom:16px; }
+      .footer-logo span { color:var(--green); }
+      .footer-desc { font-size:14px; color:var(--gray); line-height:1.7; max-width:300px; margin-bottom:28px; }
+      .footer-socials { display:flex; gap:12px; }
+      .social-btn { width:38px; height:38px; border:1px solid var(--black4); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:var(--gray); transition:var(--transition); }
+      .social-btn:hover { border-color:var(--green); color:var(--green); transform:translateY(-2px); }
+      .footer-col-title { font-family:var(--font-head); font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--white2); margin-bottom:24px; }
+      .footer-links { list-style:none; display:flex; flex-direction:column; gap:12px; }
+      .footer-links a { font-size:14px; color:var(--gray); transition:color 0.2s; }
+      .footer-links a:hover { color:var(--white); }
+      .footer-bottom { border-top:1px solid var(--black4); padding-top:32px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+      .footer-copy { font-size:13px; color:var(--gray2); }
+      .footer-copy span { color:var(--white2); font-weight:600; }
+
+      .footer-icon-circle {
+          width: 35px;
+          height: 35px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #eee;
+          border-radius: 50%;
+          color: #666;
+          text-decoration: none;
+          transition: 0.3s;
+          font-size: 0.9rem;
+      }
+      .footer-icon-circle:hover {
+          background: #000;
+          color: #fff;
+          border-color: #000;
+      }
+
+      /* ============ RESPONSIVE ============ */
+      @media(max-width:1024px) {
+        .hero-inner { grid-template-columns:1fr; }
+        .hero-panel { display:none; }
+        .services-grid { grid-template-columns:repeat(6,1fr); }
+        .srv-card:nth-child(1)  { grid-column: span 3; grid-row: span 2; }
+        .srv-card:nth-child(2)  { grid-column: span 3; grid-row: span 1; }
+        .srv-card:nth-child(3)  { grid-column: span 3; grid-row: span 1; }
+        .srv-card:nth-child(4)  { grid-column: span 2; grid-row: span 2; }
+        .srv-card:nth-child(5)  { grid-column: span 2; grid-row: span 2; }
+        .srv-card:nth-child(6)  { grid-column: span 2; grid-row: span 2; }
+        .srv-card:nth-child(7)  { grid-column: span 3; grid-row: span 1; }
+        .srv-card:nth-child(8)  { grid-column: span 3; grid-row: span 2; }
+        .srv-card:nth-child(9)  { grid-column: span 3; grid-row: span 1; }
+        .srv-card:nth-child(10) { grid-column: span 3; grid-row: span 1; }
+        .process-steps { grid-template-columns:1fr 1fr; gap:40px; }
+        .process-steps::before { display:none; }
+        .tech-grid { grid-template-columns:1fr 1fr; }
+        .footer-grid { grid-template-columns:1fr 1fr; }
+      }
+      @media(max-width:768px) {
+        .container { padding:0 20px; }
+        .nav-links,.nav-cta { display:none; }
+        .hamburger { display:flex; }
+        .services-grid { grid-template-columns:1fr !important; }
+        .srv-card:nth-child(n) { grid-column: span 1 !important; grid-row: span 1 !important; min-height:200px; }
+        .srv-card:nth-child(2) .srv-card-desc,
+        .srv-card:nth-child(3) .srv-card-desc,
+        .srv-card:nth-child(7) .srv-card-desc,
+        .srv-card:nth-child(9) .srv-card-desc,
+        .srv-card:nth-child(10) .srv-card-desc { -webkit-line-clamp:unset; display:block; }
+        .process-steps { grid-template-columns:1fr; }
+        .tech-grid { grid-template-columns:1fr; }
+        .footer-grid { grid-template-columns:1fr; gap:40px; }
+        .footer-bottom { flex-direction:column; text-align:center; }
+        .cta-actions,.hero-actions { flex-direction:column; align-items:stretch; }
+        .btn-primary,.btn-outline { justify-content:center; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursor-ring"></div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav id="navbar">
+      <div class="container">
+        <div class="nav-inner">
+          <a href="{{ url_for('main.index') }}" class="nav-logo">Nexa<span>.</span></a>
+          <ul class="nav-links">
+            <li><a href="{{ url_for('main.services') }}">Services</a></li>
+            <li><a href="{{ url_for('main.work') }}">Work</a></li>
+            <li><a href="{{ url_for('blog.list_posts') }}">Blog</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+          <div class="nav-cta">
+            <a href="#services-cta" class="btn-primary">Start Project →</a>
+          </div>
+          <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+      <button class="mobile-close" id="mobile-close">✕</button>
+      <a href="{{ url_for('main.services') }}" onclick="closeMobileMenu()">Services</a>
+      <a href="{{ url_for('main.work') }}" onclick="closeMobileMenu()">Work</a>
+      <a href="{{ url_for('blog.list_posts') }}" onclick="closeMobileMenu()">Blog</a>
+      <a href="#about" onclick="closeMobileMenu()">About</a>
+      <a href="#services-cta" onclick="closeMobileMenu()">Contact</a>
+      <a href="#services-cta" class="btn-primary" onclick="closeMobileMenu()">Start Project →</a>
+    </div>
+
+    <!-- ===== PAGE HERO ===== -->
+    <section id="page-hero">
+      <div class="hero-bg-grid"></div>
+      <div class="hero-orb"></div>
+      <div class="hero-orb2"></div>
+      <div class="container">
+        <div class="hero-inner">
+          <div>
+            <div class="hero-badge">
+              <div class="hero-badge-dot"></div>
+              <span>Multiple Services. One Partner.</span>
+            </div>
+            <h1 class="hero-title">Services Built<br/>for the Future</h1>
+            <p class="hero-sub">From AI-powered automation to enterprise cloud infrastructure — we engineer end-to-end digital solutions that scale, adapt, and outperform the competition.</p>
+            <div class="hero-actions">
+              <a href="#services-section" class="btn-primary">Explore Services →</a>
+              <a href="#services-cta" class="btn-outline">Get a Quote</a>
+            </div>
+          </div>
+          <div class="hero-panel">
+
+            <!-- Row 1: big counter + bar chart -->
+            <div class="hero-panel-row hero-panel-row-1">
+
+              <!-- Counter tile -->
+              <div class="hp-tile hp-tile-metric">
+                <span class="hp-live"><span class="hp-live-dot"></span>Live</span>
+                <span class="hp-label">Projects Delivered</span>
+                <div class="hp-number"><span id="counter-main">0</span><sup>+</sup></div>
+                <div class="hp-sub">Across 18 countries</div>
+                <div class="hp-delta"><span class="hp-delta-dot"></span>+24 this quarter</div>
+              </div>
+
+              <!-- Bar chart tile -->
+              <div class="hp-tile hp-tile-bars">
+                <span class="hp-label">Service Mix</span>
+                <div class="hp-bars">
+                  <div class="hp-bar-row">
+                    <div class="hp-bar-meta"><span class="hp-bar-name">AI & Data</span><span class="hp-bar-val">38%</span></div>
+                    <div class="hp-bar-track"><div class="hp-bar-fill" data-width="0.38"></div></div>
+                  </div>
+                  <div class="hp-bar-row">
+                    <div class="hp-bar-meta"><span class="hp-bar-name">Engineering</span><span class="hp-bar-val">31%</span></div>
+                    <div class="hp-bar-track"><div class="hp-bar-fill" data-width="0.31"></div></div>
+                  </div>
+                  <div class="hp-bar-row">
+                    <div class="hp-bar-meta"><span class="hp-bar-name">Cloud</span><span class="hp-bar-val">19%</span></div>
+                    <div class="hp-bar-track"><div class="hp-bar-fill" data-width="0.19"></div></div>
+                  </div>
+                  <div class="hp-bar-row">
+                    <div class="hp-bar-meta"><span class="hp-bar-name">Security</span><span class="hp-bar-val">12%</span></div>
+                    <div class="hp-bar-track"><div class="hp-bar-fill" data-width="0.12"></div></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Row 2: live feed + stacked stats -->
+            <div class="hero-panel-row hero-panel-row-2">
+
+              <!-- Live activity feed -->
+              <div class="hp-tile hp-tile-ticker">
+                <span class="hp-label">Recent Activity</span>
+                <div class="hp-ticker-list">
+                  <div class="hp-tick-item">
+                    <div class="hp-tick-dot green"></div>
+                    <span class="hp-tick-text">AI pipeline deployed for FinTech client</span>
+                    <span class="hp-tick-time">2m ago</span>
+                  </div>
+                  <div class="hp-tick-item">
+                    <div class="hp-tick-dot blue"></div>
+                    <span class="hp-tick-text">Next.js 15 migration completed</span>
+                    <span class="hp-tick-time">41m ago</span>
+                  </div>
+                  <div class="hp-tick-item">
+                    <div class="hp-tick-dot amber"></div>
+                    <span class="hp-tick-text">SOC 2 Type II audit passed</span>
+                    <span class="hp-tick-time">3h ago</span>
+                  </div>
+                </div>
+              </div>
+
+              
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FILTER BAR ===== -->
+    <div id="filter-bar">
+      <div class="container">
+        <div class="filter-inner">
+          <span class="filter-label">Filter by</span>
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="engineering">Engineering</button>
+          <button class="filter-btn" data-filter="ai">AI & Data</button>
+          <button class="filter-btn" data-filter="design">Design</button>
+          <button class="filter-btn" data-filter="infrastructure">Infrastructure</button>
+          <button class="filter-btn" data-filter="security">Security</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SERVICES GRID ===== -->
+    <section id="services-section">
+      <div class="container">
+        <div class="services-intro reveal">
+          <div class="section-tag">What We Do</div>
+          <h2 class="section-title">Everything You Need,<br/>Under One Roof</h2>
+          <p class="sub">Every service is built around your outcomes — not just deliverables. We go deep on every engagement, bringing senior-level expertise from day one.</p>
+        </div>
+
+        <div class="services-grid" id="services-grid">
+
+          <!-- 01 — AI & ML (LARGE HERO) -->
+          <div class="srv-card reveal" data-category="ai">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-hero-badge">Featured</div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">🤖</div>
+                <span class="srv-card-num">01</span>
+              </div>
+              <span class="srv-cat-pill">AI & Data</span>
+              <h3 class="srv-card-title">AI & Machine Learning Integration</h3>
+              <p class="srv-card-desc">We design, train, and deploy custom AI models that plug directly into your existing products and workflows — turning automation from a buzzword into a measurable competitive edge.</p>
+              <hr class="srv-divider"/>
+              <ul class="srv-features">
+                <li>Custom LLM fine-tuning & RAG pipeline development</li>
+                <li>Real-time predictive analytics & forecasting engines</li>
+                <li>NLP-powered chatbots & document automation</li>
+                <li>Model deployment, monitoring & retraining</li>
+              </ul>
+              <div class="srv-tags">
+                <span class="srv-tag">PyTorch</span>
+                <span class="srv-tag">OpenAI API</span>
+                <span class="srv-tag">LangChain</span>
+                <span class="srv-tag">Hugging Face</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+          <!-- 02 — Web Development (WIDE) -->
+          <div class="srv-card reveal reveal-delay-1" data-category="engineering">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">💻</div>
+                <span class="srv-card-num">02</span>
+              </div>
+              <span class="srv-cat-pill">Engineering</span>
+              <h3 class="srv-card-title">Full-Stack Web Development</h3>
+              <p class="srv-card-desc">Performance-first web applications engineered to scale — from complex SaaS platforms to enterprise portals. Clean, maintainable codebases that grow with your business without technical debt piling up.</p>
+              <div class="srv-tags">
+                <span class="srv-tag">React</span>
+                <span class="srv-tag">Next.js</span>
+                <span class="srv-tag">Node.js</span>
+                <span class="srv-tag">PostgreSQL</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+          <!-- 03 — Cloud & DevOps (WIDE) -->
+          <div class="srv-card reveal reveal-delay-2" data-category="infrastructure">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">☁️</div>
+                <span class="srv-card-num">03</span>
+              </div>
+              <span class="srv-cat-pill">Infrastructure</span>
+              <h3 class="srv-card-title">Cloud Architecture & DevOps</h3>
+              <p class="srv-card-desc">Cloud-native infrastructure on AWS, GCP, and Azure that's resilient, cost-optimized, and built to scale without warning. CI/CD pipelines and observability stacks engineered in from the start.</p>
+              <div class="srv-tags">
+                <span class="srv-tag">AWS</span>
+                <span class="srv-tag">Kubernetes</span>
+                <span class="srv-tag">Terraform</span>
+                <span class="srv-tag">Docker</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+          <!-- 04 — Mobile Apps -->
+          <div class="srv-card reveal" data-category="engineering">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=700&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">📱</div>
+                <span class="srv-card-num">04</span>
+              </div>
+              <span class="srv-cat-pill">Engineering</span>
+              <h3 class="srv-card-title">Mobile App Development</h3>
+              <p class="srv-card-desc">iOS and Android applications that feel native on every device. From consumer apps to enterprise tools, every interaction is designed for delight and retention.</p>
+              <hr class="srv-divider"/>
+              <ul class="srv-features">
+                <li>React Native & Flutter cross-platform</li>
+                <li>Offline-first & seamless background sync</li>
+                <li>Push notifications & deep linking</li>
+                <li>App Store launch & ASO strategy</li>
+              </ul>
+              <div class="srv-tags">
+                <span class="srv-tag">React Native</span>
+                <span class="srv-tag">Flutter</span>
+                <span class="srv-tag">Swift</span>
+                <span class="srv-tag">Kotlin</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+          <!-- 05 — UI/UX Design -->
+          <div class="srv-card reveal reveal-delay-1" data-category="design">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1561070791-2526d30994b5?w=700&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">🎨</div>
+                <span class="srv-card-num">05</span>
+              </div>
+              <span class="srv-cat-pill">Design</span>
+              <h3 class="srv-card-title">UI/UX Design & Branding</h3>
+              <p class="srv-card-desc">Interfaces grounded in user psychology and real behavioral data. Scalable design systems, production-ready Figma files, and cohesive brand identities.</p>
+              <hr class="srv-divider"/>
+              <ul class="srv-features">
+                <li>User research & usability testing</li>
+                <li>Full design systems in Figma</li>
+                <li>Brand identity & style guidelines</li>
+                <li>CRO audits & redesigns</li>
+              </ul>
+              <div class="srv-tags">
+                <span class="srv-tag">Figma</span>
+                <span class="srv-tag">Design Systems</span>
+                <span class="srv-tag">Framer</span>
+                <span class="srv-tag">CRO</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+          <!-- 06 — Digital Strategy -->
+          <div class="srv-card reveal reveal-delay-2" data-category="ai">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">📊</div>
+                <span class="srv-card-num">06</span>
+              </div>
+              <span class="srv-cat-pill">Strategy</span>
+              <h3 class="srv-card-title">Digital Strategy & Consulting</h3>
+              <p class="srv-card-desc">Build a digital roadmap tied directly to business KPIs. We audit your current stack, identify highest-leverage opportunities, and lay out a phased plan with minimal disruption.</p>
+              <hr class="srv-divider"/>
+              <ul class="srv-features">
+                <li>Technology stack audit & roadmap</li>
+                <li>Digital transformation strategy</li>
+                <li>GTM planning & validation</li>
+              </ul>
+              <div class="srv-tags">
+                <span class="srv-tag">Roadmapping</span>
+                <span class="srv-tag">Tech Audit</span>
+                <span class="srv-tag">GTM Strategy</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+          <!-- 07 — Cybersecurity (WIDE) -->
+          <div class="srv-card reveal" data-category="security">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=900&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">🔐</div>
+                <span class="srv-card-num">07</span>
+              </div>
+              <span class="srv-cat-pill">Security</span>
+              <h3 class="srv-card-title">Cybersecurity & Compliance</h3>
+              <p class="srv-card-desc">Protect your systems before an incident forces you to act. We conduct thorough security assessments and implement hardened architectures satisfying even the most demanding compliance requirements.</p>
+              <div class="srv-tags">
+                <span class="srv-tag">Pen Testing</span>
+                <span class="srv-tag">SOC 2</span>
+                <span class="srv-tag">Zero Trust</span>
+                <span class="srv-tag">GDPR</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+          <!-- 08 — Data Engineering (LARGE HERO) -->
+          <div class="srv-card reveal reveal-delay-1" data-category="ai">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-hero-badge">Popular</div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">🗃️</div>
+                <span class="srv-card-num">08</span>
+              </div>
+              <span class="srv-cat-pill">AI & Data</span>
+              <h3 class="srv-card-title">Data Engineering & Analytics</h3>
+              <p class="srv-card-desc">Most companies are sitting on a gold mine of untapped data. We build the pipelines, warehouses, and dashboards that turn raw data into business-critical intelligence.</p>
+              <hr class="srv-divider"/>
+              <ul class="srv-features">
+                <li>ETL/ELT pipeline design & automation</li>
+                <li>Data warehouse architecture (Snowflake, BigQuery)</li>
+                <li>Real-time streaming with Apache Kafka</li>
+                <li>BI dashboards & dbt modelling</li>
+              </ul>
+              <div class="srv-tags">
+                <span class="srv-tag">BigQuery</span>
+                <span class="srv-tag">Kafka</span>
+                <span class="srv-tag">dbt</span>
+                <span class="srv-tag">Snowflake</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+          <!-- 09 — IoT (WIDE) -->
+          <div class="srv-card reveal reveal-delay-2" data-category="engineering">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">🌐</div>
+                <span class="srv-card-num">09</span>
+              </div>
+              <span class="srv-cat-pill">Engineering</span>
+              <h3 class="srv-card-title">IoT & Embedded Systems</h3>
+              <p class="srv-card-desc">We bridge the physical and digital worlds — designing connected device architectures, writing production-grade firmware, and building cloud backends that make it all intelligent.</p>
+              <div class="srv-tags">
+                <span class="srv-tag">MQTT</span>
+                <span class="srv-tag">Edge AI</span>
+                <span class="srv-tag">Rust</span>
+                <span class="srv-tag">AWS IoT</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+          <!-- 10 — Managed IT -->
+          <div class="srv-card reveal" data-category="infrastructure">
+            <div class="srv-card-img" style="background-image:url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=700&auto=format&fit=crop&q=80');"></div>
+            <div class="srv-card-body">
+              <div class="srv-card-header">
+                <div class="srv-card-icon-wrap">🛠️</div>
+                <span class="srv-card-num">10</span>
+              </div>
+              <span class="srv-cat-pill">Infrastructure</span>
+              <h3 class="srv-card-title">Managed IT Services & Support</h3>
+              <p class="srv-card-desc">Your dedicated IT operations team — available 24/7. Proactive monitoring, patch management, and incident response before they become outages.</p>
+              <div class="srv-tags">
+                <span class="srv-tag">24/7 Monitoring</span>
+                <span class="srv-tag">Helpdesk</span>
+                <span class="srv-tag">SLA Backed</span>
+              </div>
+              <a href="#services-cta" class="srv-link">Start a Project →</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROCESS ===== -->
+    <section id="process">
+      <div class="container">
+        <div class="process-header reveal">
+          <div class="section-tag">How We Work</div>
+          <h2 class="section-title">Our Proven Process</h2>
+          <p class="sub">Every engagement follows a battle-tested framework that minimizes risk, ensures alignment, and maximizes delivery speed from day one.</p>
+        </div>
+        <div class="process-steps">
+          <div class="process-step reveal">
+            <div class="process-step-num">01</div>
+            <div class="process-step-title">Discover</div>
+            <div class="process-step-desc">Deep-dive workshops to understand your goals, users, and constraints before writing a single line of code.</div>
+          </div>
+          <div class="process-step reveal reveal-delay-1">
+            <div class="process-step-num">02</div>
+            <div class="process-step-title">Architect</div>
+            <div class="process-step-desc">We design the right technical solution, define the stack, and produce a detailed roadmap with clear milestones.</div>
+          </div>
+          <div class="process-step reveal reveal-delay-2">
+            <div class="process-step-num">03</div>
+            <div class="process-step-title">Build</div>
+            <div class="process-step-desc">Agile two-week sprints with live demos. Real progress every week — full transparency throughout the project.</div>
+          </div>
+          <div class="process-step reveal reveal-delay-3">
+            <div class="process-step-num">04</div>
+            <div class="process-step-title">Launch & Scale</div>
+            <div class="process-step-desc">Deployment, monitoring, handoff — and an ongoing partnership to optimize and scale as your business grows.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TECHNOLOGIES ===== -->
+    <section id="technologies">
+      <div class="container">
+        <div class="tech-header reveal">
+          <div class="section-tag">Tech Stack</div>
+          <h2 class="section-title">Technologies We Master</h2>
+          <p class="sub">Framework-agnostic and tool-forward — we choose the right technology for your specific challenge, not the other way around.</p>
+        </div>
+        <div class="tech-grid">
+          <div class="tech-cat reveal">
+            <div class="tech-cat-icon">⚙️</div>
+            <div class="tech-cat-title">Frontend & Mobile</div>
+            <div class="tech-pills">
+              <span class="tech-pill">React</span><span class="tech-pill">Next.js</span>
+              <span class="tech-pill">Vue.js</span><span class="tech-pill">React Native</span>
+              <span class="tech-pill">Flutter</span><span class="tech-pill">TypeScript</span>
+              <span class="tech-pill">Tailwind CSS</span>
+            </div>
+          </div>
+          <div class="tech-cat reveal reveal-delay-1">
+            <div class="tech-cat-icon">🔧</div>
+            <div class="tech-cat-title">Backend & Databases</div>
+            <div class="tech-pills">
+              <span class="tech-pill">Node.js</span><span class="tech-pill">Python</span>
+              <span class="tech-pill">Go</span><span class="tech-pill">GraphQL</span>
+              <span class="tech-pill">REST</span><span class="tech-pill">PostgreSQL</span>
+              <span class="tech-pill">MongoDB</span><span class="tech-pill">Redis</span>
+            </div>
+          </div>
+          <div class="tech-cat reveal reveal-delay-2">
+            <div class="tech-cat-icon">☁️</div>
+            <div class="tech-cat-title">Cloud & DevOps</div>
+            <div class="tech-pills">
+              <span class="tech-pill">AWS</span><span class="tech-pill">GCP</span>
+              <span class="tech-pill">Azure</span><span class="tech-pill">Kubernetes</span>
+              <span class="tech-pill">Docker</span><span class="tech-pill">Terraform</span>
+              <span class="tech-pill">GitHub Actions</span>
+            </div>
+          </div>
+          <div class="tech-cat reveal">
+            <div class="tech-cat-icon">🤖</div>
+            <div class="tech-cat-title">AI & Machine Learning</div>
+            <div class="tech-pills">
+              <span class="tech-pill">PyTorch</span><span class="tech-pill">TensorFlow</span>
+              <span class="tech-pill">OpenAI API</span><span class="tech-pill">LangChain</span>
+              <span class="tech-pill">Hugging Face</span><span class="tech-pill">Pinecone</span>
+            </div>
+          </div>
+          <div class="tech-cat reveal reveal-delay-1">
+            <div class="tech-cat-icon">📊</div>
+            <div class="tech-cat-title">Data & Analytics</div>
+            <div class="tech-pills">
+              <span class="tech-pill">Apache Spark</span><span class="tech-pill">dbt</span>
+              <span class="tech-pill">BigQuery</span><span class="tech-pill">Snowflake</span>
+              <span class="tech-pill">Kafka</span><span class="tech-pill">Looker</span>
+            </div>
+          </div>
+          <div class="tech-cat reveal reveal-delay-2">
+            <div class="tech-cat-icon">🔐</div>
+            <div class="tech-cat-title">Security & Compliance</div>
+            <div class="tech-pills">
+              <span class="tech-pill">HashiCorp Vault</span><span class="tech-pill">OWASP</span>
+              <span class="tech-pill">Snyk</span><span class="tech-pill">Wazuh</span>
+              <span class="tech-pill">SOC 2</span><span class="tech-pill">GDPR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section id="services-cta">
+      <div class="cta-bg"></div>
+      <div class="container">
+        <div class="cta-inner reveal">
+          <div class="section-tag">Ready to Build?</div>
+          <h2 class="cta-title">Let's Engineer<br/>Something Great</h2>
+          <p class="cta-sub">Tell us about your project and we'll put together a tailored proposal within 48 hours. No fluff — just a clear plan and honest pricing.</p>
+          <div class="cta-actions">
+            <a href="/cdn-cgi/l/email-protection#056d6069696a456b607d64766a6970716c6a6b762b6c6a" class="btn-primary">Start a Project →</a>
+            <a href="#" class="btn-outline">Schedule a Call</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-logo">Nexa<span>.</span></div>
+            <p class="footer-desc">We build intelligent digital products that power modern businesses — from AI platforms to enterprise software.</p>
+            <div class="footer-socials">
+              <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <a href="#" class="footer-icon-circle"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" class="footer-icon-circle"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="footer-icon-circle"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="footer-icon-circle"><i class="fab fa-youtube"></i></a>
+            </div>
+            </div>
+          </div>
+          <div>
+            <div class="footer-col-title">Quick Links</div>
+            <ul class="footer-links">
+              <li><a href="services.html">Services</a></li>
+              <li><a href="#portfolio">Our Work</a></li>
+              <li><a href="#blog">Blog</a></li>
+              <li><a href="#about">About Us</a></li>
+              <li><a href="#services-cta">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <div class="footer-col-title">Services</div>
+            <ul class="footer-links">
+              <li><a href="#services-section">AI & ML Integration</a></li>
+              <li><a href="#services-section">Web Development</a></li>
+              <li><a href="#services-section">Cloud & DevOps</a></li>
+              <li><a href="#services-section">Mobile Apps</a></li>
+              <li><a href="#services-section">UI/UX Design</a></li>
+              <li><a href="#services-section">Cybersecurity</a></li>
+              <li><a href="#services-section">Data Engineering</a></li>
+              <li><a href="#services-section">IoT & Embedded</a></li>
+              <li><a href="#services-section">Managed IT</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p class="footer-copy">© 2025 <span>Nexa Solutions</span>. All rights reserved.</p>
+          <p class="footer-copy">Privacy Policy · Terms of Service</p>
+        </div>
+      </div>
+    </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+      /* Custom Cursor */
+      const cursor = document.getElementById('cursor');
+      const ring = document.getElementById('cursor-ring');
+      let mx=0,my=0,rx=0,ry=0;
+      document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+      function animCursor(){
+        cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+        rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12;
+        ring.style.left=rx+'px'; ring.style.top=ry+'px';
+        requestAnimationFrame(animCursor);
+      }
+      animCursor();
+      document.querySelectorAll('a,button,.srv-card,.hstat,.tech-cat,.process-step').forEach(el=>{
+        el.addEventListener('mouseenter',()=>{ring.style.width='52px';ring.style.height='52px';ring.style.opacity='0.8';});
+        el.addEventListener('mouseleave',()=>{ring.style.width='36px';ring.style.height='36px';ring.style.opacity='0.5';});
+      });
+
+      /* Navbar scroll */
+      const nav = document.getElementById('navbar');
+      window.addEventListener('scroll',()=>{ nav.classList.toggle('scrolled', window.scrollY > 50); });
+
+      /* Mobile menu */
+      document.getElementById('hamburger').onclick = ()=>document.getElementById('mobile-menu').classList.add('open');
+      document.getElementById('mobile-close').onclick = closeMobileMenu;
+      function closeMobileMenu(){ document.getElementById('mobile-menu').classList.remove('open'); }
+
+      /* Scroll Reveal */
+      const obs = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+      },{threshold:0.08, rootMargin:'0px 0px -40px 0px'});
+      document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+      /* Filter with smooth transition */
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const allCards = document.querySelectorAll('.srv-card');
+      filterBtns.forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          filterBtns.forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          const f = btn.dataset.filter;
+          allCards.forEach(card=>{
+            const show = f==='all' || card.dataset.category===f;
+            if(show){
+              card.style.display='flex';
+              requestAnimationFrame(()=>{ card.style.opacity='1'; card.style.transform=''; });
+            } else {
+              card.style.opacity='0';
+              card.style.transform='translateY(12px)';
+              setTimeout(()=>{ if(card.dataset.category !== f && f !== 'all') card.style.display='none'; },350);
+            }
+          });
+        });
+      });
+
+      /* Animated counter */
+      function animateCounter(el, target, duration) {
+        let start = 0, step = target / (duration / 16);
+        const tick = () => {
+          start = Math.min(start + step, target);
+          el.textContent = Math.floor(start);
+          if (start < target) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+      const counterEl = document.getElementById('counter-main');
+      if (counterEl) {
+        const cObs = new IntersectionObserver(entries => {
+          if (entries[0].isIntersecting) { animateCounter(counterEl, 340, 1800); cObs.disconnect(); }
+        }, { threshold: 0.5 });
+        cObs.observe(counterEl);
+      }
+
+      /* Animate bar fills */
+      const barFills = document.querySelectorAll('.hp-bar-fill');
+      const barObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const w = parseFloat(e.target.dataset.width);
+            e.target.style.transform = `scaleX(${w})`;
+            barObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      barFills.forEach(b => barObs.observe(b));
+
+      /* Ticker fade-in stagger */
+      document.querySelectorAll('.hp-tick-item').forEach((el, i) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(12px)';
+        setTimeout(() => {
+          el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+          el.style.opacity = '1';
+          el.style.transform = 'translateX(0)';
+        }, 800 + i * 180);
+      });
+    </script>
+  </body>
+</html>
+  </body>
+</html>
