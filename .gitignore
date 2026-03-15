@@ -1,0 +1,14 @@
+# Sensitive Data (Passwords)
+.env
+
+# Python junk
+__pycache__/
+*.py[cod]
+*$py.class
+instance/
+
+
+
+# OS Files
+.DS_Store
+Thumbs.db

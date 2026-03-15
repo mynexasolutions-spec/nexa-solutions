@@ -1,10 +1,23 @@
+import os
 from flask import Flask
 from extensions import db
-from app.routes.blog_routes import blog_bp
+from dotenv import load_dotenv
+
+# 1. Load variables from your .env file into system memory
+load_dotenv() 
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres.lberqoazxfxarczjogdd:Hireberth%401502@aws-1-ap-south-1.pooler.supabase.com:5432/postgres'
+
+    # 2. Dynamically get the URI: 
+    # Use POSTGRES_URL (set by Vercel) or fallback to DATABASE_URL (from your .env)
+    database_uri = os.environ.get('POSTGRES_URL') or os.environ.get('DATABASE_URL')
+    
+    # 3. Fix the prefix if necessary (SQLAlchemy requires 'postgresql://')
+    if database_uri and database_uri.startswith("postgres://"):
+        database_uri = database_uri.replace("postgres://", "postgresql://", 1)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize extensions
