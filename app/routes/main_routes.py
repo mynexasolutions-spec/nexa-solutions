@@ -13,6 +13,10 @@ def index():
 def services():
     return render_template('services.html')
 
+@main_bp.route('/tools')
+def tools():
+    return render_template('tools.html')
+
 @main_bp.route('/work')
 def work():
     return render_template('work.html')
