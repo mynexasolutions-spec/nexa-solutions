@@ -1,5 +1,8 @@
 {% extends "blog/base.html" %}
 {% block content %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
 <style>
     #tools-hero {
         padding: 140px 0 80px;
@@ -92,6 +95,50 @@
         padding: 14px 30px;
         width: 100%;
     }
+
+    .queue-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--black3);
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        border: 1px solid var(--black4);
+        animation: fade-in 0.3s ease;
+    }
+    .file-info { display: flex; align-items: center; gap: 15px; }
+    .file-name { font-size: 14px; font-weight: 600; color: var(--white); }
+    .file-status { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); }
+    .remove-file { color: #ff4d4d; cursor: pointer; ;padding: 5px; transition: 0.2s; }
+    .remove-file:hover { transform: scale(1.2); }
+    .download-single { color: var(--green); cursor: pointer; font-weight: 700; text-decoration: underline; }
+
+    #clear-all-btn {
+        margin-top: 12px; /* Adjust this value for more/less gap */
+        width: 100%;
+    }
+
+    /* Ensure the action-bar flexbox doesn't squash the buttons */
+    #action-bar .action-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .queue-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        /* ensure content doesn't overlap on mobile */
+        min-height: 70px; 
+    }
+
+    .remove-file:hover {
+        color: #ff0000 !important;
+        transform: scale(1.1);
+    }
+
 </style>
 
 <section id="tools-hero">
@@ -108,11 +155,40 @@
                     <span style="font-size: 14px; color: var(--gray);">Convert from:</span>
                     <select id="source-format" class="format-select">
                         <option value="any">Auto Detect</option>
-                        <option value="png">PNG</option>
-                        <option value="jpg">JPG / JPEG</option>
-                        <option value="webp">WEBP</option>
-                        <option value="gif">GIF</option>
-                        <option value="bmp">BMP</option>
+                        <optgroup label="Standard Image">
+                            <option value="jpg">JPG / JPEG / JFIF</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WEBP</option>
+                            <option value="gif">GIF</option>
+                            <option value="avif">AVIF</option>
+                            <option value="bmp">BMP</option>
+                            <option value="tiff">TIFF / TIF</option>
+                            <option value="ico">ICO / ICNS</option>
+                        </optgroup>
+                        <optgroup label="Professional & Design">
+                            <option value="psd">PSD / PSB (Photoshop)</option>
+                            <option value="eps">EPS / PS</option>
+                            <option value="ai">AI (Illustrator)</option>
+                            <option value="tga">TGA</option>
+                            <option value="ppm">PPM</option>
+                            <option value="xcf">XCF (GIMP)</option>
+                        </optgroup>
+                        <optgroup label="Camera RAW">
+                            <option value="dng">DNG (Digital Negative)</option>
+                            <option value="cr2">CR2 / CR3 / CRW (Canon)</option>
+                            <option value="arw">ARW (Sony)</option>
+                            <option value="nef">NEF (Nikon)</option>
+                            <option value="orf">ORF (Olympus)</option>
+                            <option value="raf">RAF (Fujifilm)</option>
+                            <option value="rw2">RW2 (Panasonic)</option>
+                            <option value="3fr">3FR (Hasselblad)</option>
+                        </optgroup>
+                        <optgroup label="Mobile & Others">
+                            <option value="heic">HEIC / HEIF (iPhone)</option>
+                            <option value="odd">ODD / ODG</option>
+                            <option value="pub">PUB (Publisher)</option>
+                            <option value="xps">XPS</option>
+                        </optgroup>
                     </select>
                 </div>
                 
@@ -120,28 +196,98 @@
 
                 <div class="format-group">
                     <span style="font-size: 14px; color: var(--gray);">Convert to:</span>
-                    <select id="target-format" class="format-select">
-                        <option value="image/webp">WEBP (Optimized)</option>
-                        <option value="image/png">PNG (Lossless)</option>
-                        <option value="image/jpeg">JPG (Standard)</option>
-                        <option value="image/bmp">BMP</option>
-                        <option value="image/gif">GIF</option>
+                    <select id="global-target-format" class="format-select">
+                        <optgroup label="Web Optimized">
+                            <option value="image/webp">WEBP (Recommended)</option>
+                            <option value="image/jpeg">JPG (Standard)</option>
+                            <option value="image/png">PNG (Lossless)</option>
+                            <option value="image/avif">AVIF</option>
+                        </optgroup>
+                        <optgroup label="Professional & Design">
+                            <option value="image/tiff">TIFF (High Quality)</option>
+                            <option value="image/bmp">BMP (Windows)</option>
+                            <option value="image/gif">GIF (Animated/Static)</option>
+                            <option value="image/x-icon">ICO (App Icon)</option>
+                        </optgroup>
+                        <optgroup label="Vector & Documents">
+                            <option value="application/pdf">PDF Document</option>
+                            <option value="image/eps">EPS (Vector)</option>
+                            <option value="image/ps">PS (PostScript)</option>
+                        </optgroup>
                     </select>
                 </div>
             </div>
 
             <div class="upload-box" id="drop-zone">
-                <input type="file" id="file-input" accept="image/*" hidden>
+                <input type="file" id="file-input" accept="image/*"  multiple hidden>
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p id="upload-text">Drag & drop image or <strong>click to browse</strong></p>
                 <span style="font-size: 12px; color: var(--gray2);">Privacy First: Conversion happens locally</span>
             </div>
 
+            <div id="file-queue" style="margin-top: 20px;"></div>
+
+            <div id="action-bar" style="display: none; margin-top: 30px; border-top: 1px solid var(--black4); padding-top: 20px;">
+                <div style="display: flex; gap: 15px;">
+                    <button id="convert-all-btn" class="btn-primary" style="flex: 2;">Convert All Files</button>
+                    <button id="download-zip-btn" class="btn-outline" style="flex: 1; display: none;">Download All (.zip)</button>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button id="download-zip-btn" class="btn-outline" style="flex: 1; display: none; border-color: var(--green); color: var(--green);">
+                        <i class="fas fa-file-archive"></i> Download All (ZIP)
+                    </button>
+                    <button id="clear-all-btn" class="btn-outline" style="flex: 1; border-color: #ff4d4d; color: #ff4d4d;">
+                        <i class="fas fa-trash-alt"></i> Remove All
+                    </button>
+                </div>
+            </div>
+
+            <section id="converter-seo" class="reveal" style="margin-top: 80px; padding-bottom: 60px;">
+                <div class="container">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; text-align: left;">
+                        
+                        <div>
+                            <h3 style="color: var(--green); margin-bottom: 20px; font-family: var(--font-head);">Wide-Range Input Support</h3>
+                            <p style="font-size: 14px; color: var(--gray); line-height: 1.8; margin-bottom: 15px;">
+                                Our tool acts as a universal bridge for your digital assets. We support specialized formats that most browsers can't open, including:
+                            </p>
+                            <ul style="list-style: none; color: var(--gray); font-size: 13px; line-height: 1.8;">
+                                <li><strong>• Design Assets:</strong> Import layered <strong>PSD</strong> (Photoshop) or <strong>XCF</strong> (GIMP) files.</li>
+                                <li><strong>• Camera RAW:</strong> Directly convert professional photography files like <strong>CR2, NEF, and ARW</strong>.</li>
+                                <li><strong>• Mobile Formats:</strong> Seamlessly handle Apple's <strong>HEIC/HEIF</strong> images.</li>
+                                <li><strong>• Vector Graphics:</strong> Open <strong>EPS and ODD</strong> files for web deployment.</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 style="color: var(--green); margin-bottom: 20px; font-family: var(--font-head);">Versatile Output Options</h3>
+                            <p style="font-size: 14px; color: var(--gray); line-height: 1.8; margin-bottom: 15px;">
+                                Transform your files into the perfect format for your specific needs, whether it's for web performance or professional printing:
+                            </p>
+                            <ul style="list-style: none; color: var(--gray); font-size: 13px; line-height: 1.8;">
+                                <li><strong>• Web Performance:</strong> Convert to <strong>WEBP or AVIF</strong> for 80% smaller file sizes and faster SEO rankings.</li>
+                                <li><strong>• Development:</strong> Generate <strong>ICO</strong> files for website favicons or app branding.</li>
+                                <li><strong>• Archiving:</strong> Export to <strong>TIFF</strong> for lossless, high-resolution storage.</li>
+                                <li><strong>• Distribution:</strong> Instantly wrap your images into a <strong>PDF Document</strong> for easy sharing.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 50px; background: var(--black2); padding: 30px; border-radius: 12px; border: 1px solid var(--black4);">
+                        <h4 style="color: var(--white); margin-bottom: 10px;">Why use Nexa Solutions Image Converter?</h4>
+                        <p style="font-size: 13px; color: var(--gray2); line-height: 1.6;">
+                            Nexa provides a <strong>Privacy-First</strong> conversion experience. Unlike other tools, standard web conversions happen entirely in your browser. This means your sensitive design data and personal photos never leave your device. Combined with <strong>Next-Gen compression</strong>, Nexa helps you optimize your Core Web Vitals and improve user experience across all devices.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
             <div id="preview-container">
                 <div class="preview-card">
                     <img src="" id="image-preview" class="preview-img">
                     <div id="file-info" style="font-size: 12px; margin-bottom: 15px; color: var(--gray);"></div>
-                    <button id="convert-btn" class="btn-primary">Download Converted Image →</button>
+                    <button id="convert-btn" class="btn-primary">Download Converted Image </button>
                 </div>
             </div>
         </div>
@@ -149,86 +295,215 @@
 </section>
 
 <script>
+    // --- Initializing Elements ---
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
-    const previewContainer = document.getElementById('preview-container');
-    const previewImg = document.getElementById('image-preview');
-    const convertBtn = document.getElementById('convert-btn');
-    const uploadText = document.getElementById('upload-text');
-    const fileInfo = document.getElementById('file-info');
+    const fileQueueEl = document.getElementById('file-queue');
+    const actionBar = document.getElementById('action-bar');
+    const convertAllBtn = document.getElementById('convert-all-btn');
+    const downloadZipBtn = document.getElementById('download-zip-btn');
+    const clearAllBtn = document.getElementById('clear-all-btn');
     
-    let sourceImage = null;
-    let originalFileName = "nexa-asset";
+    // The master list of files to be converted
+    let fileQueue = [];
 
-    // Handle Drag and Drop Visuals
-    ['dragenter', 'dragover'].forEach(name => {
-        dropZone.addEventListener(name, (e) => {
-            e.preventDefault();
-            dropZone.classList.add('active');
+    // --- 1. Drag & Drop Interaction ---
+    ['dragenter', 'dragover'].forEach(n => {
+        dropZone.addEventListener(n, (e) => { 
+            e.preventDefault(); 
+            dropZone.classList.add('active'); 
         });
     });
-
-    ['dragleave', 'drop'].forEach(name => {
-        dropZone.addEventListener(name, (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('active');
+    ['dragleave', 'drop'].forEach(n => {
+        dropZone.addEventListener(n, (e) => { 
+            e.preventDefault(); 
+            dropZone.classList.remove('active'); 
         });
     });
 
     dropZone.onclick = () => fileInput.click();
-    dropZone.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]));
-    fileInput.onchange = (e) => handleFile(e.target.files[0]);
+    
+    dropZone.addEventListener('drop', (e) => {
+        handleFiles(e.dataTransfer.files);
+    });
 
-    function handleFile(file) {
-        if (!file || !file.type.startsWith('image/')) {
-            alert("Please upload a valid image file.");
-            return;
-        }
+    fileInput.onchange = (e) => {
+        handleFiles(e.target.files);
+    };
 
-        originalFileName = file.name.split('.')[0];
-        const reader = new FileReader();
-        
-        reader.onload = (event) => {
-            previewImg.src = event.target.result;
-            previewContainer.style.display = 'block';
-            uploadText.innerHTML = `File selected: <strong>${file.name}</strong>`;
-            fileInfo.innerText = `Original Size: ${(file.size / 1024).toFixed(2)} KB`;
-            
-            sourceImage = new Image();
-            sourceImage.src = event.target.result;
-            
-            // Auto-scroll to preview
-            previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        };
-        reader.readAsDataURL(file);
+    // --- 2. Queue Management ---
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            // Generate a unique ID for each file so we can remove/update it specifically
+            const fileId = Math.random().toString(36).substr(2, 9);
+            fileQueue.push({
+                id: fileId,
+                file: file,
+                status: 'ready',
+                resultUrl: null,
+                blob: null
+            });
+        });
+        renderQueue();
     }
 
-    convertBtn.onclick = () => {
-        if (!sourceImage) return;
+    // Attached to window so the HTML 'onclick' can find it
+    window.removeFile = (id) => {
+        fileQueue = fileQueue.filter(item => item.id !== id);
+        // If we removed the last converting file, check if we should show ZIP button
+        updateZipVisibility();
+        renderQueue();
+    };
 
-        const canvas = document.createElement('canvas');
-        const targetMime = document.getElementById('target-format').value;
-        const extension = targetMime.split('/')[1];
+    clearAllBtn.onclick = () => {
+        fileQueue = [];
+        downloadZipBtn.style.display = 'none';
+        convertAllBtn.disabled = false;
+        convertAllBtn.innerText = "Convert All Files";
+        renderQueue();
+    };
 
-        canvas.width = sourceImage.width;
-        canvas.height = sourceImage.height;
+    function updateZipVisibility() {
+        const finishedCount = fileQueue.filter(i => i.status === 'finished').length;
+        downloadZipBtn.style.display = finishedCount > 1 ? 'inline-flex' : 'none';
+    }
+
+    function renderQueue() {
+    fileQueueEl.innerHTML = '';
+    actionBar.style.display = fileQueue.length > 0 ? 'block' : 'none';
+
+    // Get current target extension from the dropdown
+    const targetMime = document.getElementById('global-target-format').value;
+    const targetExt = targetMime.split('/')[1].replace('x-icon', 'ico').replace('jpeg', 'jpg').replace('application/pdf', 'pdf');
+
+        fileQueue.forEach(item => {
+            const isFinished = item.status === 'finished';
+
+            // Logic to swap extension: strip old one, add target one
+            const baseName = item.file.name.split('.').slice(0, -1).join('.');
+            const displayFileName = `${baseName}.${targetExt}`;
+
+            const div = document.createElement('div');
+            div.className = 'queue-item';
+            div.innerHTML = `
+                <div class="file-info">
+                    <i class="far ${isFinished ? 'fa-check-circle' : 'fa-file-image'}" style="color:var(--green)"></i>
+                    <div>
+                        <div class="file-name">${displayFileName}</div>
+                        <div class="file-status ${isFinished ? 'status-finished' : ''}">${item.status}</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    ${isFinished 
+                        ? `<a href="${item.resultUrl}" download="${displayFileName}" class="download-link">Download</a>`
+                        : ''
+                    }
+                    <i class="fas fa-times remove-file" 
+                    style="color: #ff4d4d; cursor: pointer; font-size: 16px; padding: 5px;" 
+                    onclick="removeFile('${item.id}')"></i>
+                </div>
+            `;
+            fileQueueEl.appendChild(div);
+        });
+    }
+
+    // --- 3. The Conversion Engine ---
+    convertAllBtn.onclick = async () => {
+        const targetDropdown = document.getElementById('global-target-format');
+        if (!targetDropdown) return;
+
+        const targetMime = targetDropdown.value;
+        // Clean up extension names (e.g., image/jpeg -> jpg)
+        const targetExt = targetMime.split('/')[1].replace('x-icon', 'ico').replace('jpeg', 'jpg').replace('postscript', 'eps');
         
-        const ctx = canvas.getContext('2d');
-        
-        // Handle transparency for JPEG (fills white background)
-        if (targetMime === 'image/jpeg') {
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        convertAllBtn.innerText = "Processing...";
+        convertAllBtn.disabled = true;
+
+        for (let item of fileQueue) {
+            // Skip files that are already done
+            if (item.status === 'finished') continue;
+
+            item.status = 'converting';
+            renderQueue();
+
+            const formData = new FormData();
+            formData.append('image', item.file);
+            formData.append('target', targetExt);
+
+            try {
+                const res = await fetch('/convert-advanced', { method: 'POST', body: formData });
+                if (res.ok) {
+                    const blob = await res.blob();
+                    item.blob = blob;
+                    item.resultUrl = URL.createObjectURL(blob);
+                    item.status = 'finished';
+                } else { item.status = 'error'; }
+            } catch (e) { item.status = 'error'; }
+
+            renderQueue();
+            updateZipVisibility();
         }
+
+        convertAllBtn.innerText = "Conversions Finished";
         
-        ctx.drawImage(sourceImage, 0, 0);
-        
-        // Trigger Download
-        const dataUrl = canvas.toDataURL(targetMime, 0.9); // 0.9 quality for webp/jpeg
+        // Show ZIP button only if more than one file was successfully converted
+        const finishedItems = fileQueue.filter(i => i.status === 'finished');
+        if (finishedItems.length > 1) {
+            downloadZipBtn.style.display = 'inline-flex';
+        }
+
+        // --- Ensure the ZIP button appears only when files are finished ---
+        const finishedCount = fileQueue.filter(i => i.status === 'finished').length;
+        if (finishedCount > 1) {
+            downloadZipBtn.style.display = 'inline-flex';
+        }
+    };
+
+
+    // --- Clear All Logic ---
+    clearAllBtn.onclick = () => {
+        if (confirm("Are you sure you want to remove all files from the queue?")) {
+            fileQueue = []; // Empty the array
+            renderQueue();  // Refresh the UI (this will also hide the action bar)
+            
+            // Reset the Convert button state
+            convertAllBtn.disabled = false;
+            convertAllBtn.innerText = "Convert All Files";
+            convertAllBtn.style.background = "";
+            
+            // Hide the ZIP button
+            downloadZipBtn.style.display = 'none';
+        }
+    };
+
+    
+
+    // --- 4. ZIP Generation ---
+    downloadZipBtn.onclick = async () => {
+        const zip = new JSZip();
+        const folder = zip.folder("nexa-converted-assets");
+
+        fileQueue.forEach(item => {
+            if (item.status === 'finished' && item.blob) {
+                // Use the MIME type from the result blob to determine the correct file extension
+                let ext = item.blob.type.split('/')[1]
+                    .replace('x-icon', 'ico')
+                    .replace('jpeg', 'jpg')
+                    .replace('postscript', 'eps');
+                
+                const fileName = `nexa-${item.file.name.split('.')[0]}.${ext}`;
+                folder.file(fileName, item.blob);
+            }
+        });
+
+        // Generate the ZIP file in the browser memory
+        const content = await zip.generateAsync({type: "blob"});
         const link = document.createElement('a');
-        link.download = `${originalFileName}-nexa.${extension}`;
-        link.href = dataUrl;
+        link.href = URL.createObjectURL(content);
+        link.download = "nexa-bulk-export.zip";
         link.click();
     };
+
+    document.getElementById('global-target-format').addEventListener('change', renderQueue);
 </script>
 {% endblock %}
