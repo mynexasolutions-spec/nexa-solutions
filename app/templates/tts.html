@@ -1,0 +1,228 @@
+{% extends "blog/base.html" %}
+{% block content %}
+
+<style>
+    #tts-hero { 
+        padding: 140px 0 80px; 
+        min-height: 100vh; 
+        background: var(--black); 
+    }
+    
+    .tts-container {
+        max-width: 700px; 
+        margin: 0 auto;
+        background: var(--black2); 
+        border: 1px solid var(--black4);
+        padding: 40px; 
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .input-wrapper {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    textarea {
+        width: 100%; 
+        height: 220px; 
+        background: var(--black3);
+        border: 1px solid var(--black4); 
+        border-radius: 16px;
+        padding: 20px; 
+        color: var(--white); 
+        font-family: inherit;
+        font-size: 16px;
+        resize: none; 
+        outline: none; 
+        transition: all 0.3s ease;
+    }
+
+    textarea:focus { 
+        border-color: var(--green); 
+        box-shadow: 0 0 0 4px var(--green4);
+    }
+
+    .char-counter {
+        position: absolute;
+        bottom: 15px;
+        right: 20px;
+        font-size: 12px;
+        color: var(--gray2);
+        font-weight: 600;
+        pointer-events: none;
+    }
+
+    .controls-row {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .btn-clear {
+        background: transparent;
+        border: 1px solid var(--black4);
+        color: var(--gray2);
+        padding: 12px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-clear:hover {
+        border-color: #ff4d4d;
+        color: #ff4d4d;
+        background: rgba(255, 77, 77, 0.05);
+    }
+
+    .audio-player {
+        margin-top: 35px; 
+        width: 100%; 
+        display: none;
+        background: var(--black3); 
+        padding: 25px; 
+        border-radius: 16px;
+        border: 1px solid var(--black4);
+        animation: fade-up 0.5s ease forwards;
+    }
+
+    audio { 
+        width: 100%; 
+        margin: 15px 0;
+        filter: invert(100%) hue-rotate(180deg) brightness(1.5); 
+    }
+
+    .player-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--green);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+</style>
+
+<section id="tts-hero">
+    <div class="container">
+        <div class="reveal" style="text-align: center; margin-bottom: 50px;">
+            <span class="section-tag">NEXA Voice AI</span>
+            <h1 class="section-title">Text to Speech<span>.</span></h1>
+            <p class="section-subtitle" style="margin: 0 auto;">Convert your written content into natural sounding audio instantly.</p>
+        </div>
+
+        <div class="tts-container reveal reveal-delay-1">
+            <div class="input-wrapper">
+                <textarea id="text-input" maxlength="5000" placeholder="Type or paste your text here..."></textarea>
+                <div class="char-counter" id="char-count">0 / 5000</div>
+            </div>
+            
+            <div class="controls-row">
+                <button id="speak-btn" class="btn-primary" style="flex: 3;">
+                    <i class="fas fa-play" style="margin-right: 8px;"></i> Generate Audio
+                </button>
+                <button id="clear-btn" class="btn-clear" title="Clear Text">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+
+            <div class="audio-player" id="player-container">
+                <div class="player-header">
+                    <i class="fas fa-volume-up"></i> Generated Speech
+                </div>
+                <audio id="audio-out" controls></audio>
+                <a id="download-audio" class="btn-outline" style="margin-top: 10px; display: block; text-align: center; border-color: var(--green); color: var(--green);" download="nexa-voice-output.mp3">
+                    <i class="fas fa-download"></i> Download MP3
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const textInput = document.getElementById('text-input');
+    const charCount = document.getElementById('char-count');
+    const speakBtn = document.getElementById('speak-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const playerContainer = document.getElementById('player-container');
+    const audioOut = document.getElementById('audio-out');
+    const downloadLink = document.getElementById('download-audio');
+
+    // --- Live Character Counter ---
+    textInput.addEventListener('input', () => {
+        const length = textInput.value.length;
+        charCount.innerText = `${length} / 5000`;
+        
+        if (length >= 4800) {
+            charCount.style.color = "#ff4d4d";
+        } else {
+            charCount.style.color = "var(--gray2)";
+        }
+    });
+
+    // --- Clear Button Logic ---
+    clearBtn.onclick = () => {
+        if (textInput.value.length > 0) {
+            textInput.value = '';
+            charCount.innerText = "0 / 5000";
+            playerContainer.style.display = 'none';
+            audioOut.src = '';
+            textInput.focus();
+        }
+    };
+
+    // --- Generation Logic ---
+    speakBtn.onclick = async () => {
+        const text = textInput.value.trim();
+        
+        if (!text) {
+            alert("Please enter some text to convert.");
+            return;
+        }
+
+        speakBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        speakBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('text', text);
+
+        try {
+            const response = await fetch('/generate-audio', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+                
+                audioOut.src = audioUrl;
+                downloadLink.href = audioUrl;
+                
+                playerContainer.style.display = 'block';
+                speakBtn.innerHTML = '<i class="fas fa-check"></i> Generated!';
+                
+                // Auto-play
+                audioOut.play();
+                
+                // Smooth scroll to player
+                playerContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                throw new Error("Server error during generation");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Failed to generate audio. Please try again.");
+            speakBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
+        } finally {
+            setTimeout(() => {
+                speakBtn.disabled = false;
+                speakBtn.innerHTML = '<i class="fas fa-play"></i> Generate Audio';
+            }, 3000);
+        }
+    };
+</script>
+
+{% endblock %}

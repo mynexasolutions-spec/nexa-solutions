@@ -4,6 +4,7 @@ from flask import request, send_file
 from PIL import Image
 import io
 import pillow_heif
+from gtts import gTTS
 
 main_bp = Blueprint('main', __name__)
 
@@ -96,3 +97,28 @@ def convert_advanced():
     except Exception as e:
         print(f"Nexa Converter Error: {e}")
         return f"Conversion failed: {str(e)}", 500
+
+
+@main_bp.route('/text-to-speech')
+def tts_page():
+    return render_template('tts.html')
+
+@main_bp.route('/generate-audio', methods=['POST'])
+def generate_audio():
+    text = request.form.get('text')
+    # Default to English for now
+    lang = request.form.get('lang', 'en')
+    
+    if not text:
+        return "No text provided", 400
+
+    try:
+        # Generate speech in memory
+        tts = gTTS(text=text, lang=lang)
+        audio_io = io.BytesIO()
+        tts.write_to_fp(audio_io)
+        audio_io.seek(0)
+        
+        return send_file(audio_io, mimetype='audio/mpeg', as_attachment=False)
+    except Exception as e:
+        return str(e), 500
