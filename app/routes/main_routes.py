@@ -3,6 +3,7 @@ from app.models.blog import BlogPost
 from flask import request, send_file
 from PIL import Image
 import io
+import requests
 import pillow_heif
 from gtts import gTTS
 
@@ -10,6 +11,12 @@ main_bp = Blueprint('main', __name__)
 
 # Register HEIF opener so Pillow can read iPhone photos
 pillow_heif.register_heif_opener()
+
+# --- CONFIGURATION 
+HF_TOKEN = "your_actual_token_here"
+
+API_URL = "https://api-inference.huggingface.co/models/coqui/XTTS-v2"
+headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 @main_bp.route('/')
 def index():
@@ -104,44 +111,38 @@ def tts_page():
     return render_template('tts.html')
 
 
-
-HF_TOKEN = "hugging_face_token_here"
-# This model supports 16+ languages including Hindi
-API_URL = "https://api-inference.huggingface.co/models/coqui/XTTS-v2" 
-headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-
-
-
-payload = {
-  "model": "eleven-multilingual-v2", # The powerhouse model
-  "input": text,
-  "voice": "accent-id-here" 
-}
-
 @main_bp.route('/generate-audio', methods=['POST'])
 def generate_audio():
     text = request.form.get('text')
     if not text:
-        return "No text", 400
+        return "No text provided", 400
 
-    # Attempt High-Quality Neural TTS (Free API)
+    # 1. Attempt High-Quality Neural TTS (Hugging Face XTTS-v2)
     try:
-        response = requests.post(API_URL, headers=headers, json={"inputs": text}, timeout=10)
+        # XTTS-v2 often requires 'inputs' as a string or a specific dict
+        payload = {
+            "inputs": text,
+            "parameters": {"language": "hi"} # Explicitly tell it to use Hindi
+        }
+        
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=12)
         
         if response.status_code == 200:
             return send_file(
                 io.BytesIO(response.content),
                 mimetype='audio/mpeg'
             )
+        else:
+            print(f"HF API Error: {response.status_code} - {response.text}")
     except Exception as e:
-        print(f"Neural TTS Timeout/Error: {e}")
+        print(f"Neural TTS Error: {e}")
 
-    # FALLBACK: If API is slow/down, use gTTS (Reliable & Always Free)
+    # 2. FALLBACK: gTTS (Always works, but sounds robotic)
     try:
-        tts = gTTS(text=text, lang='hi') # 'hi' for Hindi support
+        tts = gTTS(text=text, lang='hi')
         audio_io = io.BytesIO()
         tts.write_to_fp(audio_io)
         audio_io.seek(0)
         return send_file(audio_io, mimetype='audio/mpeg')
     except Exception as e:
-        return str(e), 500
+        return f"Audio generation failed: {str(e)}", 500
