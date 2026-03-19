@@ -3,6 +3,7 @@ from app.models.blog import BlogPost
 from flask import request, send_file
 from PIL import Image
 import io
+import os
 import requests
 import pillow_heif
 from gtts import gTTS
@@ -12,11 +13,20 @@ main_bp = Blueprint('main', __name__)
 # Register HEIF opener so Pillow can read iPhone photos
 pillow_heif.register_heif_opener()
 
-# --- CONFIGURATION 
-HF_TOKEN = "your_actual_token_here"
+
+# Load keys from environment
+
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+# --- HuggingFace CONFIGURATION 
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 API_URL = "https://api-inference.huggingface.co/models/coqui/XTTS-v2"
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+
+
+
 
 @main_bp.route('/')
 def index():
@@ -114,35 +124,67 @@ def tts_page():
 @main_bp.route('/generate-audio', methods=['POST'])
 def generate_audio():
     text = request.form.get('text')
-    if not text:
-        return "No text provided", 400
+    # This receives the ID from the radio button choice
+    voice_id = request.form.get('voice_id') 
+    
+    if not text or not voice_id:
+        return "Missing text or voice selection", 400
 
-    # 1. Attempt High-Quality Neural TTS (Hugging Face XTTS-v2)
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    
+    headers = {
+        "Accept": "audio/mpeg",
+        "Content-Type": "application/json",
+        "xi-api-key": ELEVENLABS_API_KEY,
+    }
+
+    payload = {
+        "text": text,
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
+    }
+
     try:
-        # XTTS-v2 often requires 'inputs' as a string or a specific dict
-        payload = {
-            "inputs": text,
-            "parameters": {"language": "hi"} # Explicitly tell it to use Hindi
-        }
-        
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=12)
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
+        if response.status_code == 200:
+            return send_file(io.BytesIO(response.content), mimetype='audio/mpeg')
+        else:
+            # FALLBACK to gTTS if ElevenLabs fails/credits over
+            tts = gTTS(text=text, lang='hi')
+            audio_io = io.BytesIO()
+            tts.write_to_fp(audio_io)
+            audio_io.seek(0)
+            return send_file(audio_io, mimetype='audio/mpeg')
+    except Exception as e:
+        return str(e), 500
+
+@main_bp.route('/get-voice-preview/<voice_id>')
+def get_voice_preview(voice_id):
+    import os
+    import requests
+    
+    # 1. Try to get key from Environment (Vercel/Local .env)
+    # 2. Fallback to the string ONLY for local testing
+    api_key = os.getenv("ELEVENLABS_API_KEY", "sk_f274fe938fd4ab5f9328bdb74a902cd022b99c1b125b905a")
+
+    if not api_key:
+        return {"error": "API Key missing"}, 500
+
+    url = f"https://api.elevenlabs.io/v1/voices/{voice_id}"
+    headers = {"xi-api-key": api_key}
+    
+    try:
+        # Increase timeout to 10 to prevent 500 errors on slow connections
+        response = requests.get(url, headers=headers, timeout=10)
         
         if response.status_code == 200:
-            return send_file(
-                io.BytesIO(response.content),
-                mimetype='audio/mpeg'
-            )
+            data = response.json()
+            return {"preview_url": data.get('preview_url')}
         else:
-            print(f"HF API Error: {response.status_code} - {response.text}")
+            # This helps you see the REAL error from ElevenLabs in your terminal
+            print(f"ElevenLabs API Error: {response.status_code} - {response.text}")
+            return {"error": response.text}, response.status_code
+            
     except Exception as e:
-        print(f"Neural TTS Error: {e}")
-
-    # 2. FALLBACK: gTTS (Always works, but sounds robotic)
-    try:
-        tts = gTTS(text=text, lang='hi')
-        audio_io = io.BytesIO()
-        tts.write_to_fp(audio_io)
-        audio_io.seek(0)
-        return send_file(audio_io, mimetype='audio/mpeg')
-    except Exception as e:
-        return f"Audio generation failed: {str(e)}", 500
+        print(f"Python Crash: {str(e)}")
+        return {"error": str(e)}, 500

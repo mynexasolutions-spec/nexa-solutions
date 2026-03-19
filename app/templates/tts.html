@@ -119,6 +119,77 @@
         text-transform: uppercase;
         letter-spacing: 1px;
     }
+
+    /* Voice Selection Grid */
+    .voice-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .voice-option {
+        position: relative;
+        background: var(--black3);
+        border: 1px solid var(--black4);
+        padding: 15px;
+        border-radius: 12px;
+        cursor: pointer;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .voice-option:hover { border-color: var(--green); }
+
+    /* The Hidden Radio Input */
+    .voice-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* Selected State */
+    .voice-option:has(input:checked) {
+        border-color: var(--green);
+        background: rgba(0, 255, 136, 0.05);
+        box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
+    }
+
+    .voice-option i {
+        font-size: 20px;
+        margin-bottom: 8px;
+        color: var(--gray2);
+    }
+
+    .voice-option:has(input:checked) i { color: var(--green); }
+
+    .voice-name {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--white);
+    }
+
+    .voice-desc {
+        display: block;
+        font-size: 11px;
+        color: var(--gray2);
+    }
+
+    .preview-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: var(--green);
+        font-size: 18px;
+        opacity: 0.6;
+        transition: 0.3s;
+        z-index: 10;
+    }
+    .preview-badge:hover {
+        opacity: 1;
+        transform: scale(1.2);
+    }
 </style>
 
 <section id="tts-hero">
@@ -135,9 +206,47 @@
                 <div class="char-counter" id="char-count">0 / 2000</div>
             </div>
             
+
+            <div class="voice-grid">
+                <label class="voice-option">
+                    <input type="radio" name="voice_id" value="N2al4jd45e882svx17SU" checked>
+                    <div class="preview-badge" onclick="playElevenPreview('N2al4jd45e882svx17SU', event)">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <i class="fas fa-male"></i>
+                    <span class="voice-name">Aakash</span>
+                    <span class="voice-desc">Warm Male</span>
+                </label>
+
+                <label class="voice-option">
+                    <input type="radio" name="voice_id" value="5mnzuCX5VBUY3U7RY1pn">
+                    <div class="preview-badge" onclick="playElevenPreview('5mnzuCX5VBUY3U7RY1pn', event)">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <i class="fas fa-female"></i>
+                    <span class="voice-name">Nikita</span>
+                    <span class="voice-desc">Energetic female</span>
+                </label>
+
+                <label class="voice-option">
+                    <input type="radio" name="voice_id" value="FmBhnvP58BK0vz65OOj7">
+                    <div class="preview-badge" onclick="playElevenPreview('FmBhnvP58BK0vz65OOj7', event)">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <i class="fas fa-male"></i>
+                    <span class="voice-name">Viraj</span>
+                    <span class="voice-desc">Energetic male</span>
+                </label>
+            </div>
+
+            <audio id="preview-player" style="display:none;"></audio>
+            
             <div id="status" class="status-bar">
                 <i class="fas fa-microchip"></i> Neural engine is synthesizing natural speech...
             </div>
+
+
+            
 
             <div class="controls-row">
                 <button id="speak-btn" class="btn-primary" style="flex: 3;">
@@ -183,6 +292,37 @@
         }
     });
 
+
+    async function playElevenPreview(voiceId, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const icon = event.currentTarget.querySelector('i');
+        icon.className = 'fas fa-spinner fa-spin'; 
+
+        try {
+            // Adding the leading slash / ensures it looks at the root of your domain
+            const response = await fetch(`/get-voice-preview/${voiceId}`);
+            
+            if (!response.ok) throw new Error("Route not found");
+
+            const data = await response.json();
+
+            if (data.preview_url) {
+                const player = document.getElementById('preview-player');
+                player.src = data.preview_url;
+                player.oncanplaythrough = () => {
+                    player.play();
+                    icon.className = 'fas fa-play-circle'; 
+                };
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not load preview. Check if the route exists in main_routes.py");
+            icon.className = 'fas fa-play-circle';
+        }
+    }
+
     // --- Clear Button Logic ---
     clearBtn.onclick = () => {
         if (textInput.value.length > 0) {
@@ -197,19 +337,18 @@
 
     // --- Generation Logic ---
     speakBtn.onclick = async () => {
-        const text = textInput.value.trim();
-        
-        if (!text) {
-            alert("Please enter some text to synthesize.");
-            return;
-        }
+    const text = textInput.value.trim();
+    // Get the ID of the selected voice persona
+    const selectedVoice = document.querySelector('input[name="voice_id"]:checked').value;
+    
+    if (!text) return alert("Please enter text.");
 
-        speakBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Initializing...';
-        speakBtn.disabled = true;
-        status.style.display = 'block';
+    speakBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Synthesizing...';
+    speakBtn.disabled = true;
 
-        const formData = new FormData();
-        formData.append('text', text);
+    const formData = new FormData();
+    formData.append('text', text);
+    formData.append('voice_id', selectedVoice); // Send this to the backend!
 
         try {
             const response = await fetch('/generate-audio', {
