@@ -76,6 +76,22 @@
         background: rgba(255, 77, 77, 0.05);
     }
 
+    .status-bar { 
+        display: none; 
+        margin-top: 20px; 
+        color: var(--green); 
+        font-size: 13px; 
+        font-weight: 600;
+        text-align: center;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+    }
+
     .audio-player {
         margin-top: 35px; 
         width: 100%; 
@@ -108,20 +124,24 @@
 <section id="tts-hero">
     <div class="container">
         <div class="reveal" style="text-align: center; margin-bottom: 50px;">
-            <span class="section-tag">NEXA Voice AI</span>
+            <span class="section-tag">NEXA Neural Voice</span>
             <h1 class="section-title">Text to Speech<span>.</span></h1>
-            <p class="section-subtitle" style="margin: 0 auto;">Convert your written content into natural sounding audio instantly.</p>
+            <p class="section-subtitle" style="margin: 0 auto;">High-fidelity AI voice synthesis for English and Hindi content.</p>
         </div>
 
         <div class="tts-container reveal reveal-delay-1">
             <div class="input-wrapper">
-                <textarea id="text-input" maxlength="5000" placeholder="Type or paste your text here..."></textarea>
-                <div class="char-counter" id="char-count">0 / 5000</div>
+                <textarea id="text-input" maxlength="2000" placeholder="Type in English or Hindi (e.g., नमस्ते, NEXA कैसे मदद कर सकता है?)..."></textarea>
+                <div class="char-counter" id="char-count">0 / 2000</div>
             </div>
             
+            <div id="status" class="status-bar">
+                <i class="fas fa-microchip"></i> Neural engine is synthesizing natural speech...
+            </div>
+
             <div class="controls-row">
                 <button id="speak-btn" class="btn-primary" style="flex: 3;">
-                    <i class="fas fa-play" style="margin-right: 8px;"></i> Generate Audio
+                    <i class="fas fa-magic" style="margin-right: 8px;"></i> Generate AI Voice
                 </button>
                 <button id="clear-btn" class="btn-clear" title="Clear Text">
                     <i class="fas fa-trash-alt"></i>
@@ -130,11 +150,11 @@
 
             <div class="audio-player" id="player-container">
                 <div class="player-header">
-                    <i class="fas fa-volume-up"></i> Generated Speech
+                    <i class="fas fa-waveform"></i> AI Voice Output Ready
                 </div>
                 <audio id="audio-out" controls></audio>
-                <a id="download-audio" class="btn-outline" style="margin-top: 10px; display: block; text-align: center; border-color: var(--green); color: var(--green);" download="nexa-voice-output.mp3">
-                    <i class="fas fa-download"></i> Download MP3
+                <a id="download-audio" class="btn-outline" style="margin-top: 10px; display: block; text-align: center; border-color: var(--green); color: var(--green);" download="nexa-ai-speech.mp3">
+                    <i class="fas fa-download"></i> Download High-Quality MP3
                 </a>
             </div>
         </div>
@@ -146,6 +166,7 @@
     const charCount = document.getElementById('char-count');
     const speakBtn = document.getElementById('speak-btn');
     const clearBtn = document.getElementById('clear-btn');
+    const status = document.getElementById('status');
     const playerContainer = document.getElementById('player-container');
     const audioOut = document.getElementById('audio-out');
     const downloadLink = document.getElementById('download-audio');
@@ -153,9 +174,9 @@
     // --- Live Character Counter ---
     textInput.addEventListener('input', () => {
         const length = textInput.value.length;
-        charCount.innerText = `${length} / 5000`;
+        charCount.innerText = `${length} / 2000`;
         
-        if (length >= 4800) {
+        if (length >= 1800) {
             charCount.style.color = "#ff4d4d";
         } else {
             charCount.style.color = "var(--gray2)";
@@ -166,8 +187,9 @@
     clearBtn.onclick = () => {
         if (textInput.value.length > 0) {
             textInput.value = '';
-            charCount.innerText = "0 / 5000";
+            charCount.innerText = "0 / 2000";
             playerContainer.style.display = 'none';
+            status.style.display = 'none';
             audioOut.src = '';
             textInput.focus();
         }
@@ -178,12 +200,13 @@
         const text = textInput.value.trim();
         
         if (!text) {
-            alert("Please enter some text to convert.");
+            alert("Please enter some text to synthesize.");
             return;
         }
 
-        speakBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        speakBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Initializing...';
         speakBtn.disabled = true;
+        status.style.display = 'block';
 
         const formData = new FormData();
         formData.append('text', text);
@@ -202,7 +225,7 @@
                 downloadLink.href = audioUrl;
                 
                 playerContainer.style.display = 'block';
-                speakBtn.innerHTML = '<i class="fas fa-check"></i> Generated!';
+                speakBtn.innerHTML = '<i class="fas fa-check"></i> Synthesis Complete';
                 
                 // Auto-play
                 audioOut.play();
@@ -210,17 +233,20 @@
                 // Smooth scroll to player
                 playerContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             } else {
-                throw new Error("Server error during generation");
+                throw new Error("AI Engine busy or returned an error.");
             }
         } catch (error) {
             console.error(error);
-            alert("Failed to generate audio. Please try again.");
-            speakBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
+            alert("The AI engine is currently processing other requests. Please try again in a moment.");
+            speakBtn.innerHTML = '<i class="fas fa-redo"></i> Try Again';
         } finally {
+            status.style.display = 'none';
             setTimeout(() => {
                 speakBtn.disabled = false;
-                speakBtn.innerHTML = '<i class="fas fa-play"></i> Generate Audio';
-            }, 3000);
+                if(speakBtn.innerHTML.includes('Complete') || speakBtn.innerHTML.includes('Try Again')) {
+                    speakBtn.innerHTML = '<i class="fas fa-magic"></i> Generate AI Voice';
+                }
+            }, 4000);
         }
     };
 </script>

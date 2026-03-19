@@ -103,22 +103,45 @@ def convert_advanced():
 def tts_page():
     return render_template('tts.html')
 
+
+
+HF_TOKEN = "hugging_face_token_here"
+# This model supports 16+ languages including Hindi
+API_URL = "https://api-inference.huggingface.co/models/coqui/XTTS-v2" 
+headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+
+
+
+payload = {
+  "model": "eleven-multilingual-v2", # The powerhouse model
+  "input": text,
+  "voice": "accent-id-here" 
+}
+
 @main_bp.route('/generate-audio', methods=['POST'])
 def generate_audio():
     text = request.form.get('text')
-    # Default to English for now
-    lang = request.form.get('lang', 'en')
-    
     if not text:
-        return "No text provided", 400
+        return "No text", 400
 
+    # Attempt High-Quality Neural TTS (Free API)
     try:
-        # Generate speech in memory
-        tts = gTTS(text=text, lang=lang)
+        response = requests.post(API_URL, headers=headers, json={"inputs": text}, timeout=10)
+        
+        if response.status_code == 200:
+            return send_file(
+                io.BytesIO(response.content),
+                mimetype='audio/mpeg'
+            )
+    except Exception as e:
+        print(f"Neural TTS Timeout/Error: {e}")
+
+    # FALLBACK: If API is slow/down, use gTTS (Reliable & Always Free)
+    try:
+        tts = gTTS(text=text, lang='hi') # 'hi' for Hindi support
         audio_io = io.BytesIO()
         tts.write_to_fp(audio_io)
         audio_io.seek(0)
-        
-        return send_file(audio_io, mimetype='audio/mpeg', as_attachment=False)
+        return send_file(audio_io, mimetype='audio/mpeg')
     except Exception as e:
         return str(e), 500
