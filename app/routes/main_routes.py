@@ -3,30 +3,34 @@ from app.models.blog import BlogPost
 from flask import request, send_file
 from PIL import Image
 import io
-import os
 import requests
 import pillow_heif
 from gtts import gTTS
+
+
+# Define where you store your "Pre-known" voice files
+VOICE_ASSETS_DIR = "app/static/audio/voices/"
+
 
 main_bp = Blueprint('main', __name__)
 
 # Register HEIF opener so Pillow can read iPhone photos
 pillow_heif.register_heif_opener()
 
-
-# Load keys from environment
-
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
-HF_TOKEN = os.getenv("HF_TOKEN")
-
-# --- HuggingFace CONFIGURATION 
-HF_TOKEN = os.getenv("HF_TOKEN")
+# --- CONFIGURATION 
+HF_TOKEN = "your_actual_token_here"
 
 API_URL = "https://api-inference.huggingface.co/models/coqui/XTTS-v2"
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
-
-
+# Map names to the PROCESSED wav files in static
+VOICE_MAP = {
+    "abhi": "app/static/audio/voices/abhi_ref.wav",
+    "deepika": "app/static/audio/voices/deepika_ref.wav",
+    "kelly": "app/static/audio/voices/kelly_ref.wav",
+    "davel": "app/static/audio/voices/davel_ref.wav",
+    
+}
 
 @main_bp.route('/')
 def index():
@@ -124,67 +128,52 @@ def tts_page():
 @main_bp.route('/generate-audio', methods=['POST'])
 def generate_audio():
     text = request.form.get('text')
-    # This receives the ID from the radio button choice
-    voice_id = request.form.get('voice_id') 
+    voice_key = request.form.get('voice_id') 
     
-    if not text or not voice_id:
-        return "Missing text or voice selection", 400
+    if not text:
+        return "No text provided", 400
 
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-    
-    headers = {
-        "Accept": "audio/mpeg",
-        "Content-Type": "application/json",
-        "xi-api-key": ELEVENLABS_API_KEY,
-    }
-
-    payload = {
-        "text": text,
-        "model_id": "eleven_multilingual_v2",
-        "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
-    }
-
+    # 1. Attempt High-Quality XTTS-v2 with Voice Reference
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=15)
-        if response.status_code == 200:
-            return send_file(io.BytesIO(response.content), mimetype='audio/mpeg')
-        else:
-            # FALLBACK to gTTS if ElevenLabs fails/credits over
-            tts = gTTS(text=text, lang='hi')
-            audio_io = io.BytesIO()
-            tts.write_to_fp(audio_io)
-            audio_io.seek(0)
-            return send_file(audio_io, mimetype='audio/mpeg')
-    except Exception as e:
-        return str(e), 500
-
-@main_bp.route('/get-voice-preview/<voice_id>')
-def get_voice_preview(voice_id):
-    import os
-    import requests
-    
-    # 1. Try to get key from Environment (Vercel/Local .env)
-    # 2. Fallback to the string ONLY for local testing
-    api_key = os.getenv("ELEVENLABS_API_KEY", "sk_f274fe938fd4ab5f9328bdb74a902cd022b99c1b125b905a")
-
-    if not api_key:
-        return {"error": "API Key missing"}, 500
-
-    url = f"https://api.elevenlabs.io/v1/voices/{voice_id}"
-    headers = {"xi-api-key": api_key}
-    
-    try:
-        # Increase timeout to 10 to prevent 500 errors on slow connections
-        response = requests.get(url, headers=headers, timeout=10)
+        ref_path = VOICE_MAP.get(voice_key)
         
-        if response.status_code == 200:
-            data = response.json()
-            return {"preview_url": data.get('preview_url')}
-        else:
-            # This helps you see the REAL error from ElevenLabs in your terminal
-            print(f"ElevenLabs API Error: {response.status_code} - {response.text}")
-            return {"error": response.text}, response.status_code
+        if ref_path and os.path.exists(ref_path):
+            with open(ref_path, "rb") as audio_file:
+                # Encode the reference voice to base64 for API transmission
+                encoded_speaker = base64.b64encode(audio_file.read()).decode("utf-8")
+
+            payload = {
+                "inputs": text,
+                "parameters": {
+                    "speaker_wav": encoded_speaker,
+                    "language": "hi" 
+                }
+            }
             
+            # Increase timeout as XTTS-v2 is a large model
+            response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+            
+            if response.status_code == 200:
+                print(f"✅ XTTS Success: Voice cloned using {voice_key}")
+                return send_file(
+                    io.BytesIO(response.content),
+                    mimetype='audio/wav'
+                )
+            else:
+                print(f"⚠️ XTTS API Error: {response.status_code} - {response.text}")
+        else:
+            print(f"❌ Reference voice file not found: {ref_path}")
+
     except Exception as e:
-        print(f"Python Crash: {str(e)}")
-        return {"error": str(e)}, 500
+        print(f"🔥 Neural TTS Error: {e}")
+
+    # 2. FALLBACK: gTTS (Ensures user always gets audio)
+    try:
+        print("🔄 Falling back to gTTS...")
+        tts = gTTS(text=text, lang='hi')
+        audio_io = io.BytesIO()
+        tts.write_to_fp(audio_io)
+        audio_io.seek(0)
+        return send_file(audio_io, mimetype='audio/mpeg')
+    except Exception as e:
+        return f"Audio generation failed: {str(e)}", 500
