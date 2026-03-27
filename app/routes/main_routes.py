@@ -1,36 +1,66 @@
 from flask import Blueprint, render_template
 from app.models.blog import BlogPost
-from flask import request, send_file
+import tempfile
+
+from flask import Blueprint, request, send_file, render_template,after_this_request
+
+
 from PIL import Image
 import io
+import os, shutil
+from dotenv import load_dotenv
+import base64
 import requests
 import pillow_heif
 from gtts import gTTS
+import io
+from gradio_client import Client, handle_file
+
+
+
+# 2. Load the .env file (looks for a file named .env in your root folder)
+load_dotenv()
 
 
 # Define where you store your "Pre-known" voice files
 VOICE_ASSETS_DIR = "app/static/audio/voices/"
 
+# Map names to the PROCESSED wav files in static
+VOICE_MAP = {
+        "abhi": "app/static/audio/voices/abhi_ref.wav",
+        "deepika": "app/static/audio/voices/deepika_ref.wav",
+        "kelly": "app/static/audio/voices/kelly_ref.wav",
+        "davel": "app/static/audio/voices/davel_ref.wav",
+        
+    }
+
+
 
 main_bp = Blueprint('main', __name__)
+
+
 
 # Register HEIF opener so Pillow can read iPhone photos
 pillow_heif.register_heif_opener()
 
 # --- CONFIGURATION 
-HF_TOKEN = "your_actual_token_here"
+HF_TOKEN = os.getenv("HF_TOKEN")
 
+# Connect to the official Qwen3 Space
+client = Client("Qwen/Qwen3-TTS", token=HF_TOKEN)
+
+
+
+# Using a powerful multilingual XTTS-v2 API
 API_URL = "https://api-inference.huggingface.co/models/coqui/XTTS-v2"
-headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
-# Map names to the PROCESSED wav files in static
-VOICE_MAP = {
-    "abhi": "app/static/audio/voices/abhi_ref.wav",
-    "deepika": "app/static/audio/voices/deepika_ref.wav",
-    "kelly": "app/static/audio/voices/kelly_ref.wav",
-    "davel": "app/static/audio/voices/davel_ref.wav",
+headers = {
+    "Authorization": f"Bearer {HF_TOKEN}",
+    "Content-Type": "application/json",
     
 }
+
+
 
 @main_bp.route('/')
 def index():
@@ -124,56 +154,44 @@ def convert_advanced():
 def tts_page():
     return render_template('tts.html')
 
-
+        
 @main_bp.route('/generate-audio', methods=['POST'])
 def generate_audio():
-    text = request.form.get('text')
-    voice_key = request.form.get('voice_id') 
+    import shutil
+    target_text = request.form.get('text', '').strip()
+    voice_key = request.form.get('voice_id', 'abhi')
     
-    if not text:
-        return "No text provided", 400
+    BASE_DIR = os.getcwd()
+    ref_wav_path = os.path.join(BASE_DIR, "app", "static", "audio", "voices", f"{voice_key}_ref.wav")
+    output_path = os.path.join(BASE_DIR, "app", "static", "audio", "output.wav")
 
-    # 1. Attempt High-Quality XTTS-v2 with Voice Reference
+    if not target_text:
+        return "Please enter text", 400
+
     try:
-        ref_path = VOICE_MAP.get(voice_key)
+        print(f" Generating Qwen3 Voice Clone for: {voice_key}")
         
-        if ref_path and os.path.exists(ref_path):
-            with open(ref_path, "rb") as audio_file:
-                # Encode the reference voice to base64 for API transmission
-                encoded_speaker = base64.b64encode(audio_file.read()).decode("utf-8")
+        # We use the 6 parameters exactly as defined in the Qwen3 API docs you shared:
+        # ref_audio, ref_text, target_text, language, use_xvector_only, model_size
+        result = client.predict(
+            ref_audio=handle_file(ref_wav_path),
+            ref_text="",               # Empty because we'll use x-vector
+            target_text=target_text,
+            language="Auto",           # Handles Hindi/English automatically
+            use_xvector_only=True,     # Setting to True bypasses the need for transcription
+            model_size="1.7B",         # High quality mode
+            api_name="/generate_voice_clone"
+        )
 
-            payload = {
-                "inputs": text,
-                "parameters": {
-                    "speaker_wav": encoded_speaker,
-                    "language": "hi" 
-                }
-            }
-            
-            # Increase timeout as XTTS-v2 is a large model
-            response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
-            
-            if response.status_code == 200:
-                print(f"✅ XTTS Success: Voice cloned using {voice_key}")
-                return send_file(
-                    io.BytesIO(response.content),
-                    mimetype='audio/wav'
-                )
-            else:
-                print(f"⚠️ XTTS API Error: {response.status_code} - {response.text}")
-        else:
-            print(f"❌ Reference voice file not found: {ref_path}")
+        # Qwen3 returns a tuple: [0] is the filepath
+        generated_file = result[0]
+        
+        if os.path.exists(output_path):
+            os.remove(output_path)
+        shutil.move(generated_file, output_path)
+
+        return send_file(output_path, mimetype='audio/wav')
 
     except Exception as e:
-        print(f"🔥 Neural TTS Error: {e}")
-
-    # 2. FALLBACK: gTTS (Ensures user always gets audio)
-    try:
-        print("🔄 Falling back to gTTS...")
-        tts = gTTS(text=text, lang='hi')
-        audio_io = io.BytesIO()
-        tts.write_to_fp(audio_io)
-        audio_io.seek(0)
-        return send_file(audio_io, mimetype='audio/mpeg')
-    except Exception as e:
-        return f"Audio generation failed: {str(e)}", 500
+        print(f"Qwen3 Error: {e}")
+        return f"Cloning Error: {str(e)}", 500

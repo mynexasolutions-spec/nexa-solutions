@@ -7,5 +7,12 @@ __pycache__/
 *$py.class
 instance/
 
+# AI Model Weights
+.cache/
+models/
+*.pth
+*.ckpt
 
+# Temporary Audio
+app/static/audio/temp_*.wav
 

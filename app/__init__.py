@@ -1,4 +1,5 @@
 import os
+import sys
 from flask import Flask
 from extensions import db
 from dotenv import load_dotenv
@@ -30,4 +31,10 @@ def create_app():
     app.register_blueprint(blog_bp)
     app.register_blueprint(main_bp)
 
+    # Get the absolute path to the root 'LuxTTS' directory
+    lux_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'LuxTTS'))
+    if lux_path not in sys.path:
+        sys.path.append(lux_path)
+
+        
     return app

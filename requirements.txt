@@ -7,3 +7,14 @@ Pillow
 pillow-heif
 gTTS
 requests
+soundfile
+librosa
+torch --index-url https://download.pytorch.org/whl/cpu
+torchvision --index-url https://download.pytorch.org/whl/cpu
+torchaudio --index-url https://download.pytorch.org/whl/cpu
+numpy==1.26.4
+scipy
+transformers
+lhotse
+vocos
+tensorboard

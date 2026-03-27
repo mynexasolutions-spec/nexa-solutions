@@ -416,7 +416,7 @@
         pointer-events: none;
       }
       .hero-content {
-        margin-left: -180px;
+        
         max-width: 850px;
         text-align: left;
       }
@@ -1656,7 +1656,7 @@
         transition-delay: 0.4s;
       }
 
-      /* ============ RESPONSIVE ============ */
+      //* ============ RESPONSIVE ============ */
       @media (max-width: 1024px) {
         .portfolio-grid,
         .blogs-grid {
@@ -1682,10 +1682,34 @@
           gap: 48px;
         }
       }
+ 
       @media (max-width: 768px) {
+        /* ---- Restore cursor for touch devices ---- */
+        body,
+        button,
+        a,
+        .btn-primary,
+        .btn-outline,
+        .portfolio-card,
+        .blog-card,
+        .testi-btn,
+        .testi-dot,
+        .form-submit,
+        .mobile-close,
+        .hamburger {
+          cursor: auto;
+        }
+        .cursor,
+        .cursor-ring {
+          display: none;
+        }
+ 
+        /* ---- Container ---- */
         .container {
           padding: 0 20px;
         }
+ 
+        /* ---- Navbar ---- */
         .nav-links,
         .nav-cta {
           display: none;
@@ -1693,33 +1717,154 @@
         .hamburger {
           display: flex;
         }
+        /* Keep scrolled navbar centered & visible on mobile */
+        #navbar.scrolled {
+          max-width: calc(100% - 32px);
+          left: 16px;
+          right: 16px;
+          top: 12px;
+        }
+ 
+        /* ---- Hero ---- */
+        #hero {
+          padding-top: 90px;
+          padding-bottom: 60px;
+          min-height: auto;
+        }
+        .hero-content {
+          max-width: 100%;
+          text-align: center;
+        }
+        .hero-badge {
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .hero-headline {
+          font-size: clamp(36px, 11vw, 56px);
+          letter-spacing: -1px;
+        }
+        .hero-sub {
+          max-width: 100%;
+          text-align: center;
+        }
+        .hero-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        /* Make hero background orbs more visible on mobile */
+        .hero-orb {
+          width: 90vw;
+          height: 90vw;
+          top: -5%;
+          right: -20%;
+          background: radial-gradient(
+            circle,
+            rgba(0, 0, 0, 0.1) 0%,
+            rgba(0, 0, 0, 0.05) 50%,
+            transparent 70%
+          );
+        }
+        .hero-orb2 {
+          width: 70vw;
+          height: 70vw;
+          bottom: -5%;
+          left: -15%;
+          background: radial-gradient(
+            circle,
+            rgba(0, 0, 0, 0.07) 0%,
+            transparent 65%
+          );
+        }
+        /* Make the grid lines more visible on mobile */
+        .hero-grid {
+          background-image:
+            linear-gradient(rgba(0, 0, 0, 0.055) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
+          background-size: 40px 40px;
+        }
         .hero-stats {
           gap: 24px;
           flex-wrap: wrap;
+          justify-content: center;
+        }
+ 
+        /* ---- Services ---- */
+        #services {
+          padding: 60px 0;
+          gap: 40px;
+        }
+        .services-header {
+          position: static;
+          margin-bottom: 40px;
+        }
+        .service-block {
+          position: static; /* Disable sticky stacking on mobile */
+          margin-bottom: 20px;
+          padding: 28px 20px;
+          border-radius: 16px;
+          min-height: auto;
+        }
+        .service-block:nth-child(2),
+        .service-block:nth-child(3),
+        .service-block:nth-child(4),
+        .service-block:nth-child(5),
+        .service-block:nth-child(6),
+        .service-block:nth-child(7) {
+          top: auto;
+        }
+ 
+        /* ---- Portfolio / Blogs ---- */
+        .portfolio-header,
+        .blogs-header {
+          flex-direction: column;
+          align-items: flex-start;
         }
         .portfolio-grid,
         .blogs-grid {
           grid-template-columns: 1fr;
         }
+        .portfolio-grid .portfolio-card:nth-child(3) {
+          display: block; /* Show all cards on mobile */
+        }
+ 
+        /* ---- Results ---- */
         .results-grid {
           grid-template-columns: 1fr 1fr;
         }
+        .result-item {
+          padding: 36px 16px;
+        }
+ 
+        /* ---- Why ---- */
         .why-grid {
           grid-template-columns: 1fr;
         }
+ 
+        /* ---- Testimonials ---- */
+        .testimonial-card {
+          min-width: 100%;
+        }
+ 
+        /* ---- Footer ---- */
         .footer-grid {
           grid-template-columns: 1fr;
           gap: 40px;
         }
+        .footer-desc {
+          max-width: 100%;
+          text-align: left;
+        }
+        .footer-bottom {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+ 
+        /* ---- Contact ---- */
         .form-row {
           grid-template-columns: 1fr;
         }
-        .testimonial-card {
-          min-width: calc(100% - 0px);
-        }
-        .portfolio-grid .portfolio-card:nth-child(3) {
-          display: none;
-        }
+ 
+        /* ---- Buttons ---- */
         .btn-primary,
         .btn-outline {
           width: 100%;
@@ -1728,6 +1873,30 @@
         .cta-actions {
           flex-direction: column;
           align-items: stretch;
+        }
+ 
+        /* ---- Section spacing ---- */
+        #portfolio,
+        #blogs,
+        #testimonials,
+        #why,
+        #results,
+        #cta,
+        #contact {
+          padding: 72px 0;
+        }
+      }
+ 
+      /* ---- Extra small phones ---- */
+      @media (max-width: 400px) {
+        .hero-headline {
+          font-size: clamp(32px, 10vw, 44px);
+        }
+        .results-grid {
+          grid-template-columns: 1fr;
+        }
+        .result-item {
+          padding: 28px 16px;
         }
       }
     </style>
