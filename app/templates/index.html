@@ -777,6 +777,100 @@
 
       /* Responsive Fixes for Stacking */
       @media (max-width: 1024px) {
+        /* Floating tech words */
+        .hero-floats {
+          position:absolute;
+          right: 10%;
+          top: 5%;
+          bottom: 0;
+          width: 45%;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .float-circle {
+          position: relative;
+          width: 420px;
+          height: 420px;
+        }
+        .float-ring {
+          position: absolute;
+          inset: 0;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          border-radius: 50%;
+          animation: spin 30s linear infinite;
+        }
+        .float-ring:nth-child(2) {
+          inset: 40px;
+          animation-duration: 20s;
+          animation-direction: reverse;
+          border-color: rgba(0, 0, 0, 0.036);
+        }
+        .float-ring:nth-child(3) {
+          inset: 90px;
+          animation-duration: 14s;
+          border-color: rgba(0, 0, 0, 0.09);
+        }
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .float-center {
+          position: absolute;
+          inset: 130px;
+          background: radial-gradient(
+            circle,
+            rgba(0, 0, 0, 0.09) 0%,
+            transparent 70%
+          );
+          border-radius: 50%;
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .float-center-text {
+          font-family: var(--font-head);
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 3px;
+          text-transform: uppercase;
+          color: var(--green);
+        }
+        .float-dot {
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          background: var(--green);
+          border-radius: 50%;
+          box-shadow:
+            0 0 10px rgba(0, 0, 0, 0.2),
+            0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        /* orbit dots */
+        .orbit-dot {
+          position: absolute;
+          border-radius: 50%;
+        }
+        .float-tag {
+          position: absolute;
+          background: var(--black3);
+          border: 1px solid var(--black4);
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--white2);
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+        .float-tag.active {
+          border-color: var(--green);
+          color: var(--green);
+        }
         #services {
           padding: 120px 0;
           /* Necessary for the sticky children to have a track to move through */
@@ -1708,7 +1802,7 @@
         transition-delay: 0.4s;
       }
 
-      //* ============ RESPONSIVE ============ */
+      /* ============ RESPONSIVE ============ */
       @media (max-width: 1024px) {
         .portfolio-grid,
         .blogs-grid {
@@ -1803,19 +1897,7 @@
           flex-direction: column;
           align-items: stretch;
         }
-        /* Make hero background orbs more visible on mobile */
-        .hero-orb {
-          width: 90vw;
-          height: 90vw;
-          top: -5%;
-          right: -20%;
-          background: radial-gradient(
-            circle,
-            rgba(0, 0, 0, 0.1) 0%,
-            rgba(0, 0, 0, 0.05) 50%,
-            transparent 70%
-          );
-        }
+        
         
         /* Make the grid lines more visible on mobile */
         .hero-grid {
