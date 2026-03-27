@@ -777,6 +777,21 @@
 
       /* Responsive Fixes for Stacking */
       @media (max-width: 1024px) {
+        #services {
+          padding: 120px 0;
+          /* Necessary for the sticky children to have a track to move through */
+          display: flex;
+          flex-direction: column;
+          gap: 100px;
+        }
+
+        .services-header {
+          text-align: center;
+          margin-bottom: 100px;
+          position: sticky;
+          top: 120px; /* Header stays visible briefly */
+          z-index: 1;
+        }
         .service-block {
         display: grid;
         grid-template-columns: 1fr 1fr;
