@@ -778,10 +778,47 @@
       /* Responsive Fixes for Stacking */
       @media (max-width: 1024px) {
         .service-block {
-          grid-template-columns: 1fr;
-          padding: 40px;
-          margin: 0 10px;
-        }
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+        padding: 60px;
+        border: 1px solid var(--black4);
+        border-radius: 24px; /* More rounded like the video */
+        background: var(--black2);
+        position: sticky; /* The magic property */
+        top: 10vh; /* Adjust this based on your navbar height */
+        margin-bottom: 30vh; /* Adds "breathing room" so the next card stays away longer */
+        min-height: 450px;
+        box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.08); /* Adds depth to the stack */
+        transition: transform 0.3s ease;
+      }
+
+      /* Progressive stacking: each block sits higher than the last */
+      .service-block:nth-child(2) {
+        z-index: 2;
+        top: 2px;
+      }
+      .service-block:nth-child(3) {
+        z-index: 3;
+        top: 4px;
+      }
+      .service-block:nth-child(4) {
+        z-index: 4;
+        top: 6px;
+      }
+      .service-block:nth-child(5) {
+        z-index: 5;
+        top: 8px;
+      }
+      .service-block:nth-child(6) {
+        z-index: 6;
+        top: 10px;
+      }
+      .service-block:nth-child(7) {
+        z-index: 7;
+        top: 11px;
+      }
         .service-block-image {
           order: -1; /* Image always on top in mobile stack */
         }
@@ -1764,17 +1801,7 @@
             transparent 70%
           );
         }
-        .hero-orb2 {
-          width: 70vw;
-          height: 70vw;
-          bottom: -5%;
-          left: -15%;
-          background: radial-gradient(
-            circle,
-            rgba(0, 0, 0, 0.07) 0%,
-            transparent 65%
-          );
-        }
+        
         /* Make the grid lines more visible on mobile */
         .hero-grid {
           background-image:
