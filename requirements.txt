@@ -7,6 +7,5 @@ Pillow
 pillow-heif
 gTTS
 requests
-shutil
+
 gradio_client
-tempfile
